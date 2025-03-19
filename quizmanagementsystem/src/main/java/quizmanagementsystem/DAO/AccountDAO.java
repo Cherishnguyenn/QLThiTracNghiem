@@ -1,5 +1,5 @@
 package quizmanagementsystem.DAO;
 
-public class LoginDAO {
-    
+public class AccountDAO {
+
 }
