@@ -1,13 +1,13 @@
 package quizmanagementsystem.DTO;
 
-public class LoginDTO {
+public class AccountDTO {
     private String username;
     private String password;
 
-    public LoginDTO() {
+    public AccountDTO() {
     }
 
-    public LoginDTO(String username, String password) {
+    public AccountDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }
