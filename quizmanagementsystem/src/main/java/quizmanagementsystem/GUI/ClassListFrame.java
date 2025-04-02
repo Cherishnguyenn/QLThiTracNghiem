@@ -5,7 +5,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 
-
 import quizmanagementsystem.BUS.ClassBUS;
 import quizmanagementsystem.BUS.UserBUS;
 import quizmanagementsystem.DTO.ClassDTO;
@@ -41,8 +40,6 @@ public class ClassListFrame {
         // Lấy tên học sinh từ userID
         String studentName = UserBUS.getUserName(userID);
 
-        
-
         // Label hiển thị tên người dùng
         JLabel userlabel = new JLabel(studentName);
         userlabel.setBounds(600, 11, 300, 30);
@@ -50,19 +47,32 @@ public class ClassListFrame {
         userlabel.setForeground(Color.WHITE);
         userpanel.add(userlabel);
 
-         //Label back
-         JLabel backlabel = new JLabel();
-         backlabel.setBounds(10, 11, 20, 30);
+        // Label back
+        JLabel backlabel = new JLabel();
+        backlabel.setBounds(10, 11, 20, 30);
 
-         ImageIcon backsign = new ImageIcon("quizmanagementsystem/src/main/resources/img/back.png");
-         Image imgbacksign = backsign.getImage().getScaledInstance(25, 20, Image.SCALE_SMOOTH);
-         ImageIcon resizedbacksign = new ImageIcon(imgbacksign);
-         backlabel.setIcon(resizedbacksign);
-         userpanel.add(backlabel);
+        ImageIcon backsign = new ImageIcon("quizmanagementsystem/src/main/resources/img/back.png");
+        Image imgbacksign = backsign.getImage().getScaledInstance(25, 20, Image.SCALE_SMOOTH);
+        ImageIcon resizedbacksign = new ImageIcon(imgbacksign);
+        backlabel.setIcon(resizedbacksign);
+        userpanel.add(backlabel);
 
+        backlabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                TeacherFrameGUI teacherframe = new TeacherFrameGUI(userID);
+                teacherframe.showFrame();
+                
+                // Đóng frame hiện tại
+                JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(backlabel);
+                if (currentFrame != null) {
+                    currentFrame.dispose();
+                }
+            }
+        });
         // Label tên màn hình
         JLabel mainlabel = new JLabel("Danh sách lớp");
-        mainlabel.setBounds(30, 11, 200, 30);
+        mainlabel.setBounds(40, 11, 200, 30);
         mainlabel.setForeground(Color.WHITE);
         mainlabel.setFont(new Font("Arial", Font.BOLD, 17));
         userpanel.add(mainlabel);
@@ -75,8 +85,6 @@ public class ClassListFrame {
         Image imguser = usersign.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
         user.setIcon(new ImageIcon(imguser));
         userpanel.add(user);
-
-
 
         // ==========================Bộ lọc - Tìm kiếm - Button
         // ==========================
@@ -159,7 +167,6 @@ public class ClassListFrame {
         searchText.setForeground(Color.GRAY);
         filterPanel.add(searchText);
 
-
         // Label icon Sắp xếp
         JLabel arrangeLabel = new JLabel();
         arrangeLabel.setBounds(670, 20, 50, 30);
@@ -168,7 +175,7 @@ public class ClassListFrame {
         arrangeLabel.setIcon(new ImageIcon(imgArrange));
         filterPanel.add(arrangeLabel);
 
-        // Action cho label sắp xếp 
+        // Action cho label sắp xếp
         arrangeLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -196,27 +203,27 @@ public class ClassListFrame {
             public void actionPerformed(ActionEvent e) {
                 updateClass();
             }
-        });       
-        //Action cho searchText
+        });
+        // Action cho searchText
         searchText.getDocument().addDocumentListener(new DocumentListener() {
-    @Override
-    public void insertUpdate(DocumentEvent e) {
-        updateTableData();
-    }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateTableData();
+            }
 
-    @Override
-    public void removeUpdate(DocumentEvent e) {
-        updateTableData();
-    }
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateTableData();
+            }
 
-    @Override
-    public void changedUpdate(DocumentEvent e) {
-        updateTableData();
-    }
-});
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateTableData();
+            }
+        });
 
-// Khởi tạo bảng với dữ liệu ban đầu
-loadClassData(); // Thay vì loadInitialData()
+        // Khởi tạo bảng với dữ liệu ban đầu
+        loadClassData(); // Thay vì loadInitialData()
 
         // ==========================Thêm vào Frame ==========================
         f.add(userpanel);
@@ -301,7 +308,8 @@ loadClassData(); // Thay vì loadInitialData()
             }
         }
     }
-    //Hàm hiển thị menu sxep
+
+    // Hàm hiển thị menu sxep
     private void showSortMenu(java.awt.event.MouseEvent evt) {
         JPopupMenu sortMenu = new JPopupMenu();
 
@@ -323,16 +331,15 @@ loadClassData(); // Thay vì loadInitialData()
 
         sortMenu.add(ascendingItem);
         sortMenu.add(descendingItem);
-        
+
         // Hiển thị menu tại vị trí của chuột
         sortMenu.show(((ComponentEvent) evt).getComponent(), evt.getX(), evt.getY());
     }
 
-
     // ======================Hàm sắp xếp=================================
     private void updateTableData(boolean ascending) {
         List<ClassDTO> sortedClasses = ClassBUS.sortClasses(ascending);
-    
+
         tableModel.setRowCount(0);
         for (ClassDTO classObj : sortedClasses) {
             Vector<Object> row = new Vector<>();
@@ -342,19 +349,17 @@ loadClassData(); // Thay vì loadInitialData()
             tableModel.addRow(row);
         }
     }
-    //Hàm update table
+
+    // Hàm update table
     // Thay vì gọi loadInitialData(), bạn sẽ gọi loadClassData()
-private void updateTableData() {
-    String keyword = searchText.getText().trim();
-    if (keyword.isEmpty()) {
-        // Nếu trường tìm kiếm trống, hiển thị dữ liệu ban đầu
-        loadClassData(); // Gọi phương thức đã có để tải dữ liệu
-    } else {
-        // Tìm kiếm và cập nhật dữ liệu
-        ClassBUS.searchClassData(keyword, tableModel);
-    }
-}
-    public static void main(String[] args) {
-        new ClassListFrame(1);
+    private void updateTableData() {
+        String keyword = searchText.getText().trim();
+        if (keyword.isEmpty()) {
+            // Nếu trường tìm kiếm trống, hiển thị dữ liệu ban đầu
+            loadClassData(); // Gọi phương thức đã có để tải dữ liệu
+        } else {
+            // Tìm kiếm và cập nhật dữ liệu
+            ClassBUS.searchClassData(keyword, tableModel);
+        }
     }
 }

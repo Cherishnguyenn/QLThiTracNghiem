@@ -12,13 +12,14 @@ import javax.swing.border.EmptyBorder;
 import quizmanagementsystem.BUS.UserBUS;
 
 public class StudentFrameGUI {
+    JFrame f;
     private int userID; // Biến lưu userID của sinh viên
 
     public StudentFrameGUI(int userID) {
         this.userID = userID; // Lưu userID vào biến toàn cục
 
         // Frame
-        JFrame f = new JFrame("Quiz Management System");
+        f = new JFrame("Quiz Management System");
         f.setSize(800, 600);
         f.setLayout(null);
 
@@ -111,17 +112,18 @@ testResultPanel.addMouseListener(new java.awt.event.MouseAdapter() {
         gbc.gridy = 0;
         panel.add(imageLabel, gbc);
     
-        // Tiêu đề (căn giữa + tự xuống dòng)
-        gbc.gridy = 1;
-        JLabel titleLabel = new JLabel("<html><div style='text-align: center;'>" + title + "</div></html>");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        // **Thêm khoảng cách giữa hình & chữ**
-        titleLabel.setBorder(new EmptyBorder(10, 0, 0, 0)); // Thêm 10px trên
-    
-        panel.add(titleLabel, gbc);
+// Tiêu đề
+JLabel titleLabel = new JLabel(title);
+titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+titleLabel.setVerticalAlignment(SwingConstants.TOP); // Căn chỉnh theo chiều dọc
+titleLabel.setBorder(new EmptyBorder(10, 0, 0, 0)); // Thêm khoảng cách giữa hình và chữ
+gbc.gridy = 1;
+panel.add(titleLabel, gbc);
     
         return panel;
+    }
+    public void showFrame(){
+        f.setVisible(true);
     }
 }

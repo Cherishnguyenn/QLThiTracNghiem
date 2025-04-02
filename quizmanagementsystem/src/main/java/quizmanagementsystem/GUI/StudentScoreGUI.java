@@ -1,10 +1,21 @@
 package quizmanagementsystem.GUI;
 
 import javax.swing.*;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
 import java.awt.*;
-import java.awt.event.*;
-
+import java.util.List;
+import quizmanagementsystem.BUS.StudentScoreBUS;
 import quizmanagementsystem.BUS.UserBUS;
+import quizmanagementsystem.DTO.StudentScoreDTO;
 
 public class StudentScoreGUI {
     private int userID;
@@ -15,7 +26,6 @@ public class StudentScoreGUI {
         // Frame
         JFrame f = new JFrame("Quiz Management System");
         f.setSize(800, 600);
-        f.setLayout(null);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Thanh hiển thị tên người dùng
@@ -27,13 +37,29 @@ public class StudentScoreGUI {
         // Lấy tên học sinh từ userID
         String studentName = UserBUS.getUserName(userID);
 
-        //Label và icon back
+        // Label back
         JLabel backlabel = new JLabel();
-        backlabel.setBounds(10, 13, 30, 25);
+        backlabel.setBounds(10, 11, 20, 30);
+
         ImageIcon backsign = new ImageIcon("quizmanagementsystem/src/main/resources/img/back.png");
-        Image imgback = backsign.getImage().getScaledInstance(25, 25, Image.SCALE_SMOOTH);
-        backlabel.setIcon(new ImageIcon(imgback));
+        Image imgbacksign = backsign.getImage().getScaledInstance(25, 20, Image.SCALE_SMOOTH);
+        ImageIcon resizedbacksign = new ImageIcon(imgbacksign);
+        backlabel.setIcon(resizedbacksign);
         userpanel.add(backlabel);
+
+        backlabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                StudentFrameGUI studentframe = new StudentFrameGUI(userID);
+                studentframe.showFrame();
+
+                // Đóng frame hiện tại
+                JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(backlabel);
+                if (currentFrame != null) {
+                    currentFrame.dispose();
+                }
+            }
+        });
 
         // Label tên màn hình
         JLabel mainlabel = new JLabel("Xem thống kê");
@@ -57,46 +83,78 @@ public class StudentScoreGUI {
         user.setIcon(new ImageIcon(imguser));
         userpanel.add(user);
 
-        // Panel chứa bộ lọc
-        JPanel filterPanel = new JPanel();
-        filterPanel.setBounds(0, 50, 800, 70);
-        filterPanel.setLayout(null);
+        // Panel chứa biểu đồ
+        JPanel chartPanel = new JPanel();
+        chartPanel.setBounds(0, 50, 800, 550);
+        chartPanel.setLayout(new BorderLayout());
 
-        //Label tìm kiếm
-        JLabel searchlabel = new JLabel("Tìm kiếm");
-        searchlabel.setBounds(20,20,100,30);
-        filterPanel.add(searchlabel);
+        // Lấy startDate và endDate từ database
+        String startDate = StudentScoreBUS.getStartDate(userID);
+        String endDate = StudentScoreBUS.getEndDate(userID);
 
-        // Textfield cho thanh tìm kiếm
-        JTextField searchtext = new JTextField();
-        searchtext.setBounds(100, 20, 400, 30);
-        searchtext.setForeground(Color.GRAY);
-        filterPanel.add(searchtext);
-
-        //Icon và label lọc
-        JLabel filterlabel = new JLabel();
-        filterlabel.setBounds(510, 20, 50, 30);
-        ImageIcon filtersign = new ImageIcon("quizmanagementsystem/src/main/resources/img/filter.png");
-        Image imgfilter = filtersign.getImage().getScaledInstance(25, 25,Image.SCALE_SMOOTH);
-        ImageIcon resizedfilter = new ImageIcon(imgfilter);
-        filterlabel.setIcon(resizedfilter);
-        filterPanel.add(filterlabel);
-
-        //Icon và label sắp xếp
-        JLabel arrangelabel = new JLabel();
-        arrangelabel.setBounds(550, 20, 50, 30);
-        ImageIcon arrangesign = new ImageIcon("quizmanagementsystem/src/main/resources/img/arrows.png");
-        Image imgarrange = arrangesign.getImage().getScaledInstance(25, 25,Image.SCALE_SMOOTH);
-        ImageIcon resizedarrange = new ImageIcon(imgarrange);
-        arrangelabel.setIcon(resizedarrange);
-        filterPanel.add(arrangelabel);
-
+        // Lấy dữ liệu và hiển thị biểu đồ
+        updateChart(chartPanel, startDate, endDate);
 
         // Thêm vào frame
         f.add(userpanel);
-        f.add(filterPanel);
+        f.add(chartPanel);
 
         f.setVisible(true);
         f.setLocationRelativeTo(null);
     }
+
+    private void updateChart(JPanel chartPanel, String startDate, String endDate) {
+        // Lấy dữ liệu điểm số của học sinh
+        List<StudentScoreDTO> scores = StudentScoreBUS.getStudentScores(userID, startDate, endDate);
+
+        // Kiểm tra nếu không có dữ liệu
+        if (scores.isEmpty()) {
+            JOptionPane.showMessageDialog(chartPanel, "Không có dữ liệu điểm số trong khoảng thời gian này.",
+                    "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // Tạo dataset cho biểu đồ
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        for (StudentScoreDTO score : scores) {
+            dataset.addValue(score.getScore(), "Scores", String.valueOf(score.getExamID()));
+        }
+
+        // Tạo biểu đồ
+        JFreeChart chart = ChartFactory.createLineChart(
+                "Thống kê điểm số",
+                "Mã bài làm",
+                "Điểm số",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true, true, false);
+
+        // Thiết lập màu nền của plot
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+
+        // Thiết lập màu các đường biểu diễn
+        LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+        renderer.setSeriesPaint(0, Color.RED); // Thiết lập màu cho series đầu tiên
+
+        // Thiết lập phạm vi cho trục y
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setRange(0.0, 10.0); // Thiết lập phạm vi từ 0.0 đến 10.0
+        rangeAxis.setAutoRangeIncludesZero(true); // Đảm bảo trục y bao gồm giá trị 0
+        rangeAxis.setTickUnit(new NumberTickUnit(0.5)); // Thiết lập khoảng cách giữa các tick là 0.5
+
+        // Thiết lập autoRange cho trục x
+        CategoryAxis domainAxis = plot.getDomainAxis();
+        domainAxis.setCategoryMargin(0.1); // Thiết lập khoảng cách giữa các cột
+
+        // Hiển thị biểu đồ
+        chartPanel.removeAll();
+        chartPanel.setLayout(null);
+        ChartPanel chartPanelComponent = new ChartPanel(chart);
+        chartPanelComponent.setBounds(0, 0, 800, 600); // Thiết lập vị trí và kích thước mong muốn
+        chartPanel.add(chartPanelComponent);
+        chartPanel.revalidate();
+        chartPanel.repaint();
+    }
+
 }
