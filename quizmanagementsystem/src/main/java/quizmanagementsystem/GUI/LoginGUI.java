@@ -144,8 +144,4 @@ public class LoginGUI extends JFrame {
         // Đóng cửa sổ đăng nhập sau khi thành công
         this.dispose();
     }
-
-    public static void main(String[] args) {
-        new LoginGUI();
-    }
 }
