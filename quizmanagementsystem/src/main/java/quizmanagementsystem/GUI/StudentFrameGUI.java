@@ -39,16 +39,16 @@ public class StudentFrameGUI {
         userlabel.setForeground(Color.WHITE);
         userpanel.add(userlabel);
 
-        //Label tên màn hình
+        // Label tên màn hình
         JLabel mainlabel = new JLabel("Màn hình chính");
         mainlabel.setBounds(30, 11, 200, 30);
         mainlabel.setForeground(Color.WHITE);
         mainlabel.setFont(new Font("Arial", Font.BOLD, 17));
         userpanel.add(mainlabel);
 
-        //Label user
+        // Label user
         JLabel user = new JLabel();
-        user.setBounds(730,11,30,30);
+        user.setBounds(730, 11, 30, 30);
 
         ImageIcon usersign = new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png");
         Image imguser = usersign.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
@@ -76,15 +76,14 @@ public class StudentFrameGUI {
                 "quizmanagementsystem/src/main/resources/img/analytics.png", 550, 90);
         mainpanel.add(testResultPanel);
 
-        
-// Thêm sự kiện chuyển sang StudentScoreGUI
-testResultPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-    @Override
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
-        f.dispose(); // Đóng StudentFrameGUI
-        new StudentScoreGUI(userID); // Mở giao diện mới
-    }
-});
+        // Thêm sự kiện chuyển sang StudentScoreGUI
+        testResultPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                f.dispose(); // Đóng StudentFrameGUI
+                new StudentScoreGUI(userID); // Mở giao diện mới
+            }
+        });
 
         f.add(mainpanel);
         f.setResizable(false);
@@ -93,37 +92,37 @@ testResultPanel.addMouseListener(new java.awt.event.MouseAdapter() {
         f.setVisible(true);
     }
 
-
     private JPanel createPanel(String title, String imagePath, int x, int y) {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(Color.decode("#C3F5FF"));
         panel.setBounds(x, y, 180, 250);
-    
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.CENTER; // Căn giữa
-    
+
         // Hình ảnh
         JLabel imageLabel = new JLabel();
         ImageIcon imageIcon = new ImageIcon(imagePath);
         Image img = imageIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
         imageLabel.setIcon(new ImageIcon(img));
-        
+
         gbc.gridy = 0;
         panel.add(imageLabel, gbc);
-    
-// Tiêu đề
-JLabel titleLabel = new JLabel(title);
-titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-titleLabel.setVerticalAlignment(SwingConstants.TOP); // Căn chỉnh theo chiều dọc
-titleLabel.setBorder(new EmptyBorder(10, 0, 0, 0)); // Thêm khoảng cách giữa hình và chữ
-gbc.gridy = 1;
-panel.add(titleLabel, gbc);
-    
+
+        // Tiêu đề
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setVerticalAlignment(SwingConstants.TOP); // Căn chỉnh theo chiều dọc
+        titleLabel.setBorder(new EmptyBorder(10, 0, 0, 0)); // Thêm khoảng cách giữa hình và chữ
+        gbc.gridy = 1;
+        panel.add(titleLabel, gbc);
+
         return panel;
     }
-    public void showFrame(){
+
+    public void showFrame() {
         f.setVisible(true);
     }
 }

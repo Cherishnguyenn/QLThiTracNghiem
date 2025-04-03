@@ -29,11 +29,13 @@ public class AdminFrameGUI {
         f.add(mainPanel, BorderLayout.CENTER);
 
         // Panel quản lý tài khoản
-        JPanel accountPanel = createPanel("Quản lý tài khoản", "quizmanagementsystem/src/main/resources/img/verified-account.png", 170, 90);
+        JPanel accountPanel = createPanel("Quản lý tài khoản",
+                "quizmanagementsystem/src/main/resources/img/verified-account.png", 170, 90);
         mainPanel.add(accountPanel);
 
         // Panel quản lý câu hỏi
-        JPanel questionPanel = createPanel("Quản lý câu hỏi", "quizmanagementsystem/src/main/resources/img/question-mark.png", 450, 90);
+        JPanel questionPanel = createPanel("Quản lý câu hỏi",
+                "quizmanagementsystem/src/main/resources/img/question-mark.png", 450, 90);
         mainPanel.add(questionPanel);
 
         f.pack();
@@ -63,7 +65,8 @@ public class AdminFrameGUI {
         userPanel.add(mainLabel);
 
         // Label user icon
-        JLabel userIcon = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png").getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
+        JLabel userIcon = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png")
+                .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
         userIcon.setBounds(730, 11, 30, 30);
         userPanel.add(userIcon);
 
@@ -80,27 +83,24 @@ public class AdminFrameGUI {
         gbc.anchor = GridBagConstraints.CENTER;
 
         // Hình ảnh
-        JLabel imageLabel = new JLabel(new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH)));
+        JLabel imageLabel = new JLabel(
+                new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH)));
         gbc.gridy = 0;
         panel.add(imageLabel, gbc);
 
-// Tiêu đề
-JLabel titleLabel = new JLabel(title);
-titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-titleLabel.setVerticalAlignment(SwingConstants.TOP); // Căn chỉnh theo chiều dọc
-titleLabel.setBorder(new EmptyBorder(10, 0, 0, 0)); // Thêm khoảng cách giữa hình và chữ
-gbc.gridy = 1;
-panel.add(titleLabel, gbc);
+        // Tiêu đề
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setVerticalAlignment(SwingConstants.TOP); // Căn chỉnh theo chiều dọc
+        titleLabel.setBorder(new EmptyBorder(10, 0, 0, 0)); // Thêm khoảng cách giữa hình và chữ
+        gbc.gridy = 1;
+        panel.add(titleLabel, gbc);
 
         return panel;
     }
 
     public void showFrame() {
         f.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        new AdminFrameGUI(1);
     }
 }

@@ -24,19 +24,19 @@ public class LoginGUI extends JFrame {
         // Panel trái
         JPanel leftPanel = new JPanel();
         leftPanel.setBackground(new Color(173, 232, 244));
-        leftPanel.setLayout(new GridBagLayout());
+        leftPanel.setLayout(null);
 
         JLabel imgLabel = new JLabel();
         ImageIcon icon = new ImageIcon("quizmanagementsystem/src/main/resources/img/online-learning.png");
         Image img = icon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
         imgLabel.setIcon(new ImageIcon(img));
+        imgLabel.setBounds(40, 50, 250, 250);
         leftPanel.add(imgLabel);
 
         // Panel phải (form)
         JPanel rightPanel = new JPanel();
         rightPanel.setBackground(Color.white);
         rightPanel.setLayout(null);
-        rightPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
         JLabel titleLabel = new JLabel("Đăng nhập");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
@@ -84,7 +84,16 @@ public class LoginGUI extends JFrame {
                         null, panel, "Quên mật khẩu", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
                 if (result == JOptionPane.OK_OPTION) {
-                    JOptionPane.showMessageDialog(null, "Thay đổi mật khẩu thành công!");
+                    String email = userField.getText();
+                    String newPassword = new String(passField.getPassword());
+
+                    boolean isUpdated = UserBUS.updatePassword(email, newPassword);
+
+                    if (isUpdated) {
+                        JOptionPane.showMessageDialog(null, "Thay đổi mật khẩu thành công!");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Tên tài khoản không tồn tại hoặc có lỗi xảy ra!");
+                    }
                 }
             }
         });

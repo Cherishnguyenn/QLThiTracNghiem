@@ -109,17 +109,18 @@ public class TeacherFrameGUI {
         gbc.gridy = 0;
         panel.add(imageLabel, gbc);
 
-// Tiêu đề
-JLabel titleLabel = new JLabel(title);
-titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-titleLabel.setVerticalAlignment(SwingConstants.TOP); // Căn chỉnh theo chiều dọc
-titleLabel.setBorder(new EmptyBorder(10, 0, 0, 0)); // Thêm khoảng cách giữa hình và chữ
-gbc.gridy = 1;
-panel.add(titleLabel, gbc);
+        // Tiêu đề
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setVerticalAlignment(SwingConstants.TOP); // Căn chỉnh theo chiều dọc
+        titleLabel.setBorder(new EmptyBorder(10, 0, 0, 0)); // Thêm khoảng cách giữa hình và chữ
+        gbc.gridy = 1;
+        panel.add(titleLabel, gbc);
 
         return panel;
     }
+
     public void showFrame() {
         f.setVisible(true);
     }

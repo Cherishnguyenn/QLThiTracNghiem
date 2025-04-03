@@ -76,5 +76,19 @@ public class UserDAO {
         }
         return name;
     }
-    
+    public static boolean updatePassword(String email, String newPassword) {
+        // Kết nối đến cơ sở dữ liệu và thực hiện cập nhật
+        try (Connection connection = JDBCUtil.getConnection()) {
+            String sql = "UPDATE users SET password = ? WHERE email = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, newPassword);
+                preparedStatement.setString(2, email);
+                int rowsAffected = preparedStatement.executeUpdate();
+                return rowsAffected > 0; // Trả về true nếu cập nhật thành công
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; // Trả về false nếu có lỗi
+        }
+    }
 }
