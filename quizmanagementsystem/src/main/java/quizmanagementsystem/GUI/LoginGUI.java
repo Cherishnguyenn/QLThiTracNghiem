@@ -64,7 +64,6 @@ public class LoginGUI extends JFrame {
         forgotLabel.setForeground(new Color(0, 0, 204));
         forgotLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         forgotLabel.setBounds(215, 160, 100, 20);
-        forgotLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         forgotLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
