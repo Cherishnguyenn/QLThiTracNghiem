@@ -145,7 +145,6 @@ public class LoginGUI extends JFrame {
                 new AdminFrameGUI(userID);
                 break;
             default:
-                JOptionPane.showMessageDialog(this, "Không xác định được Role!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 break;
         }
 
