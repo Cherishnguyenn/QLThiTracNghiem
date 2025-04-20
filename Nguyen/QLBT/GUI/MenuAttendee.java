@@ -72,7 +72,6 @@ public class MenuAttendee extends JFrame {
             JOptionPane.showMessageDialog(null, "Lỗi khi kết nối hoặc truy vấn cơ sở dữ liệu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             return; 
         } finally {
-            // Đóng kết nối, preparedStatement và resultSet trong khối finally
             try { if (resultSet != null) resultSet.close(); } catch (SQLException e) { e.printStackTrace(); }
             try { if (preparedStatement != null) preparedStatement.close(); } catch (SQLException e) { e.printStackTrace(); }
             try { if (connection != null) connection.close(); } catch (SQLException e) { e.printStackTrace(); }
