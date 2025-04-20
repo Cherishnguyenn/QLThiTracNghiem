@@ -1,6 +1,6 @@
 package GUI;
 
-import DTO.User;
+import ModelModel.User;
 import javax.swing.JFrame;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
