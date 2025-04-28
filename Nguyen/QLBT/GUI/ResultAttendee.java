@@ -1,10 +1,11 @@
 package GUI;
 
-import ModelModel.User;
-import javax.swing.JFrame;
+import DTO.UserDTO;
+import BUS.UserBUS;
+
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.JFrame;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -15,64 +16,110 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class ResultAttendee extends JFrame {
-    private final User loginUser;
+    private final int userID;
+    private final JFrame f;
     private JTextField textfieldFindViewResultAttendee;
     private JTable tableViewResultAttendee;
     private JButton buttonBackViewResutlAttendee;
-    private JLabel labelFindViewResultAttendee;
-    private JPanel panelViewResultAttendee;
-    private DefaultTableModel columnModel;
     private DefaultTableModel rowModel;
     private TableRowSorter<TableModel> rowSorter;
+    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public ResultAttendee(User loginUser) {
-        this.loginUser = loginUser;
-        this.setTitle("Xem điểm thi");
-        this.setResizable(true);
-        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        panelViewResultAttendee = new JPanel(new BorderLayout(10, 10));
-        this.setContentPane(panelViewResultAttendee);
-        initComponents();
-        addActionEvent();
-        fillDataToTable();
-        makeTableSearchable();
-        this.pack();
-        this.setLocationRelativeTo(null);
-        this.setVisible(true);
-    }
+    public ResultAttendee(int userID) throws SQLException {
+        this.userID = userID;
+        f = new JFrame("Xem điểm thi");
+        f.setSize(900, 600); 
+        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        f.setLocationRelativeTo(null);
+        f.setLayout(new BorderLayout());
 
-    private void initComponents() {
-        labelFindViewResultAttendee = new JLabel("Tìm kiếm (Mã bài thi):");
-        textfieldFindViewResultAttendee = new JTextField(20);
-        buttonBackViewResutlAttendee = new JButton("Quay lại");
+        
+        JPanel userPanel = createUserPanel();
+        f.add(userPanel, BorderLayout.NORTH);
+
+        
+        JPanel mainPanel = new JPanel(null);
+        mainPanel.setPreferredSize(new Dimension(880, 550)); 
+
+        
+        JPanel searchPanel = createSearchPanel();
+        searchPanel.setBounds(30, 30, 820, 50); 
+        mainPanel.add(searchPanel);
+
+        
         tableViewResultAttendee = new JTable();
         JScrollPane scrollPane = new JScrollPane(tableViewResultAttendee);
-
         tableViewResultAttendee.setDefaultEditor(Object.class, null);
         tableViewResultAttendee.getTableHeader().setReorderingAllowed(false);
-        columnModel = new DefaultTableModel(
+        DefaultTableModel columnModel = new DefaultTableModel(
                 new Object[][]{},
-                new String[]{"Mã bài thi", "Điểm thi"}
+                new String[]{"SubmissionID", "Mã bài thi", "Thời gian bắt đầu", "Thời gian kết thúc", "Điểm thi", "Số câu đúng", "Tổng số câu"} // Added more columns
         );
         tableViewResultAttendee.setModel(columnModel);
         rowModel = (DefaultTableModel) tableViewResultAttendee.getModel();
+        scrollPane.setBounds(30, 100, 820, 350); 
+        mainPanel.add(scrollPane);
 
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(labelFindViewResultAttendee);
-        topPanel.add(textfieldFindViewResultAttendee);
+        f.add(mainPanel, BorderLayout.CENTER);
 
-        panelViewResultAttendee.add(topPanel, BorderLayout.NORTH);
-        panelViewResultAttendee.add(scrollPane, BorderLayout.CENTER);
-        panelViewResultAttendee.add(buttonBackViewResutlAttendee, BorderLayout.SOUTH);
-    }
-
-    private void addActionEvent() {
+        
+        buttonBackViewResutlAttendee = new JButton("Quay lại");
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonPanel.add(buttonBackViewResutlAttendee);
+        f.add(buttonPanel, BorderLayout.SOUTH);
         buttonBackViewResutlAttendee.addActionListener((ActionEvent event) -> {
             ResultAttendee.this.dispose();
-            new MenuAttendee(loginUser);
+            try {
+                new MenuAttendee(userID);
+            } catch (SQLException ex) {
+                Logger.getLogger(ResultAttendee.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
+
+        fillDataToTable();
+        makeTableSearchable();
+
+        f.pack();
+        f.setVisible(true);
+    }
+
+    private JPanel createUserPanel() throws SQLException {
+        JPanel userPanel = new JPanel(null);
+        userPanel.setBackground(Color.decode("#A0E7E7"));
+        userPanel.setPreferredSize(new Dimension(880, 50)); 
+
+        String userName = UserBUS.getUserName(userID);
+
+        JLabel titleLabel = new JLabel("Kết quả thi");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 17));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setBounds(30, 11, 200, 30);
+        userPanel.add(titleLabel);
+
+        JLabel userNameLabel = new JLabel("Học sinh: " + userName);
+        userNameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        userNameLabel.setForeground(Color.WHITE);
+        userNameLabel.setBounds(600, 11, 300, 30);
+        userPanel.add(userNameLabel);
+
+        return userPanel;
+    }
+
+    private JPanel createSearchPanel() {
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel labelFindViewResultAttendee = new JLabel("Tìm kiếm (Mã bài thi):");
+        textfieldFindViewResultAttendee = new JTextField(20);
+        searchPanel.add(labelFindViewResultAttendee);
+        searchPanel.add(textfieldFindViewResultAttendee);
+        return searchPanel;
     }
 
     private void fillDataToTable() {
@@ -87,22 +134,34 @@ public class ResultAttendee extends JFrame {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
 
-            String query = "SELECT ExamID, Score FROM studentsubmissions WHERE StudentID = ?";
+            String query = "SELECT SubmissionID, ExamID, StartTime, EndTime, Score, CorrectAnswers, TotalQuestions FROM studentsubmissions WHERE StudentID = ?";
             preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, loginUser.getUserID());
-            System.out.println("Tìm kiếm điểm cho StudentID: " + loginUser.getUserID());
+            preparedStatement.setInt(1, userID);
+            System.out.println("Tìm kiếm điểm cho StudentID: " + userID);
             resultSet = preparedStatement.executeQuery();
 
             rowModel.setRowCount(0);
-            int rowCount = 0;
             while (resultSet.next()) {
+                int submissionID = resultSet.getInt("SubmissionID");
                 int examID = resultSet.getInt("ExamID");
+                Timestamp startTime = resultSet.getTimestamp("StartTime");
+                Timestamp endTime = resultSet.getTimestamp("EndTime");
                 double score = resultSet.getDouble("Score");
-                System.out.println("Đã tìm thấy: ExamID=" + examID + ", Score=" + score);
-                rowModel.addRow(new Object[]{examID, score});
-                rowCount++;
+                int correctAnswers = resultSet.getInt("CorrectAnswers");
+                int totalQuestions = resultSet.getInt("TotalQuestions");
+
+                System.out.println("Đã tìm thấy: SubmissionID=" + submissionID + ", ExamID=" + examID + ", Score=" + score);
+                rowModel.addRow(new Object[]{
+                        submissionID,
+                        examID,
+                        startTime != null ? dateTimeFormat.format(startTime) : null,
+                        endTime != null ? dateTimeFormat.format(endTime) : null,
+                        score,
+                        correctAnswers,
+                        totalQuestions
+                });
             }
-            System.out.println("Số lượng hàng đã thêm vào bảng: " + rowCount);
+            System.out.println("Số lượng hàng đã thêm vào bảng: " + rowModel.getRowCount());
 
         } catch (ClassNotFoundException e) {
             JOptionPane.showMessageDialog(null, "Không tìm thấy JDBC Driver: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -128,62 +187,41 @@ public class ResultAttendee extends JFrame {
                 }
                 TableModel model = entry.getModel();
                 Integer row = entry.getIdentifier();
-                String examID = model.getValueAt(row, 0).toString();
+                
+                String examID = model.getValueAt(row, 1).toString();
                 return examID.toLowerCase().contains(searchText.toLowerCase());
             }
         });
         tableViewResultAttendee.setRowSorter(rowSorter);
+
+        textfieldFindViewResultAttendee.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                rowSorter.setRowFilter(rowSorter.getRowFilter());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                rowSorter.setRowFilter(rowSorter.getRowFilter());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+            }
+        });
+    }
+
+    public void showFrame() {
+        f.setVisible(true);
     }
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
-            Connection connection = null;
-            PreparedStatement preparedStatement = null;
-            ResultSet resultSet = null;
-            User attendee = null;
-            int targetStudentID = 2;
             try {
-                String DB_URL = "jdbc:mysql://localhost:3306/ql_thitracnghiem?serverTimezone=Asia/Ho_Chi_Minh";
-                String DB_USER = "root";
-                String DB_PASSWORD = "Thanh@1810";
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                String query = "SELECT UserID, Name, Email, Password, Role, ClassID FROM users WHERE Role = 'Student' AND UserID = ? LIMIT 1";
-                preparedStatement = connection.prepareStatement(query);
-                preparedStatement.setInt(1, targetStudentID);
-                resultSet = preparedStatement.executeQuery();
-
-                if (resultSet.next()) {
-                    attendee = new User(
-                            resultSet.getInt("UserID"),
-                            resultSet.getString("Name"),
-                            resultSet.getString("Email"),
-                            resultSet.getString("Password"),
-                            resultSet.getString("Role"),
-                            resultSet.getString("ClassID")
-                    );
-                    System.out.println("Thông tin attendee được lấy: " + attendee);
-                } else {
-                    JOptionPane.showMessageDialog(null, "Không tìm thấy tài khoản học sinh với UserID = " + targetStudentID, "Lỗi", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-            } catch (ClassNotFoundException e) {
-                JOptionPane.showMessageDialog(null, "Không tìm thấy JDBC Driver: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-                e.printStackTrace();
-                return;
-            } catch (SQLException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Lỗi khi kết nối hoặc truy vấn cơ sở dữ liệu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-                return;
-            } finally {
-                try { if (resultSet != null) resultSet.close(); } catch (SQLException e) { e.printStackTrace(); }
-                try { if (preparedStatement != null) preparedStatement.close(); } catch (SQLException e) { e.printStackTrace(); }
-                try { if (connection != null) connection.close(); } catch (SQLException e) { e.printStackTrace(); }
-            }
-
-            if (attendee != null) {
-                new ResultAttendee(attendee);
+                ResultAttendee resultsGUI = new ResultAttendee(1);
+                resultsGUI.showFrame();
+            } catch (SQLException ex) {
+                Logger.getLogger(ResultAttendee.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
@@ -191,4 +229,3 @@ public class ResultAttendee extends JFrame {
     private void createUIComponents() {
     }
 }
-//code này không hiển thị được dữ liệu bảng vì theo sql userID=2,3 là student nhưng trong studentsubmissions thì studentID=1,5
