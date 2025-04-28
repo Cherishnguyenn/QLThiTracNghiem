@@ -1,121 +1,154 @@
 package GUI;
-
-import Model.User;
-
+//done
+import BUS.UserBUS;
 import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import javax.swing.JFrame; 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class MenuAttendee extends JFrame {
-    private final User loginUser;
-    private JButton buttonGoToExamViewMenuAttendee;
-    private JButton buttonViewResultsViewMenuAttendee;
-    private JButton buttonLogoutViewMenuAttendee;
-    private JPanel panelViewMenuAttendee;
+public class MenuAttendee {
+    private final int userID;
+    private JFrame f;
 
-    public MenuAttendee(User user) {
-        this.loginUser = user;
-        initComponents();
-        addActionEvent();
-        this.setTitle("Menu Người dự thi");
-        this.setResizable(true);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setContentPane(panelViewMenuAttendee);
-        this.pack();
-        this.setLocationRelativeTo(null);
-        this.setVisible(true);
+    public MenuAttendee(int userID) throws SQLException {
+        this.userID = userID;
+
+        
+        f = new JFrame("Attendee Menu");
+        f.setSize(800, 600);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setLocationRelativeTo(null);
+        f.setLayout(new BorderLayout());
+
+        
+        JPanel userPanel = createUserPanel();
+        f.add(userPanel, BorderLayout.NORTH);
+
+        
+        JPanel mainPanel = new JPanel(null);
+        mainPanel.setPreferredSize(new Dimension(800, 550));
+        f.add(mainPanel, BorderLayout.CENTER);
+
+        
+        JPanel takeQuizPanel = createPanel("Làm bài thi",
+                "C:\\Users\\ASUS\\Downloads\\img java\\assigment.png", 170, 90, null); // No action for this panel yet
+        mainPanel.add(takeQuizPanel);
+
+        
+        JPanel viewHistoryPanel = createPanel("Xem điểm thi",
+                "C:\\Users\\ASUS\\Downloads\\img java\\graduation.png", 450, 90, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        f.dispose();
+                        try {
+                            new ResultAttendee(userID);
+                        } catch (SQLException ex) {
+                            Logger.getLogger(MenuAttendee.class.getName()).log(Level.SEVERE, "Error creating ResultAttendee", ex);
+                            JOptionPane.showMessageDialog(f, "Lỗi khi mở xem điểm thi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+        mainPanel.add(viewHistoryPanel);
+
+        
+        JPanel profilePanel = createPanel("Thông tin cá nhân",
+                "C:\\Users\\ASUS\\Downloads\\img java\\user.png", 170, 350, null); 
+        mainPanel.add(profilePanel);
+
+        f.pack();
+        f.setVisible(true);
+    }
+
+    private JPanel createUserPanel() throws SQLException {
+        JPanel userPanel = new JPanel(null);
+        userPanel.setBackground(Color.decode("#A0E7E7"));
+        userPanel.setPreferredSize(new Dimension(800, 50));
+
+        
+        String userName = UserBUS.getUserName(userID);
+
+        
+        JLabel userLabel = new JLabel(userName);
+        userLabel.setBounds(600, 11, 300, 30);
+        userLabel.setFont(new Font("Arial", Font.BOLD, 17));
+        userLabel.setForeground(Color.WHITE);
+        userPanel.add(userLabel);
+
+        
+        JLabel mainLabel = new JLabel("Menu Thí Sinh");
+        mainLabel.setBounds(30, 11, 200, 30);
+        mainLabel.setForeground(Color.WHITE);
+        mainLabel.setFont(new Font("Arial", Font.BOLD, 17));
+        userPanel.add(mainLabel);
+
+        
+        JLabel userIcon = new JLabel(new ImageIcon(new ImageIcon("C:\\Users\\ASUS\\Downloads\\img java\\user.png")
+                .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
+        userIcon.setBounds(730, 11, 30, 30);
+        userPanel.add(userIcon);
+
+        return userPanel;
+    }
+
+    private JPanel createPanel(String title, String imagePath, int x, int y, ActionListener actionListener) {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(Color.decode("#A0E7E7"));
+        panel.setBounds(x, y, 180, 250);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        // Hình ảnh
+        JLabel imageLabel = new JLabel(
+                new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH)));
+        gbc.gridy = 0;
+        panel.add(imageLabel, gbc);
+
+        
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        titleLabel.setVerticalAlignment(SwingConstants.TOP);
+        titleLabel.setBorder(new EmptyBorder(10, 0, 10, 0)); 
+
+        gbc.gridy = 1;
+        panel.add(titleLabel, gbc);
+
+        JButton button = new JButton("Vào");
+        button.setFont(new Font("Arial", Font.PLAIN, 12));
+        if (actionListener != null) {
+            button.addActionListener(actionListener);
+            panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        } else {
+            panel.setCursor(Cursor.getDefaultCursor()); 
+        }
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL; 
+        gbc.insets = new Insets(5, 20, 20, 20); 
+        panel.add(button, gbc);
+
+        return panel;
+    }
+
+    public void showFrame() {
+        f.setVisible(true);
     }
 
     public static void main(String[] args) {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        User attendee = null;
-
-        try {
-            String DB_URL = "jdbc:mysql://localhost:3306/ql_thitracnghiem";
-            String DB_USER = "root";
-            String DB_PASSWORD = "Thanh@1810";
-
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-
-            String query = "SELECT UserID, Name, Email, Password, Role, ClassID FROM users WHERE Role = 'Student' LIMIT 1";
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                attendee = new User(
-                        resultSet.getInt("UserID"),
-                        resultSet.getString("Name"),
-                        resultSet.getString("Email"),
-                        resultSet.getString("Password"),
-                        resultSet.getString("Role"),
-                        resultSet.getString("ClassID")
-                );
-            }
-
-        } catch (ClassNotFoundException e) {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy JDBC Driver: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-            return;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Lỗi khi kết nối hoặc truy vấn cơ sở dữ liệu: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-            return; 
-        } finally {
-            try { if (resultSet != null) resultSet.close(); } catch (SQLException e) { e.printStackTrace(); }
-            try { if (preparedStatement != null) preparedStatement.close(); } catch (SQLException e) { e.printStackTrace(); }
-            try { if (connection != null) connection.close(); } catch (SQLException e) { e.printStackTrace(); }
-        }
-
-        if (attendee != null) {
-            User finalAttendee = attendee;
-            EventQueue.invokeLater(() -> new MenuAttendee(finalAttendee));
-        } else {
-            JOptionPane.showMessageDialog(null, "Không tìm thấy tài khoản học sinh", "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void initComponents() {
-        buttonGoToExamViewMenuAttendee = new JButton("Vào Kỳ Thi");
-        buttonViewResultsViewMenuAttendee = new JButton("Xem Kết Quả");
-        buttonLogoutViewMenuAttendee = new JButton("Đăng Xuất");
-        panelViewMenuAttendee = new JPanel(new GridLayout(3, 1, 10, 10));
-        panelViewMenuAttendee.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        panelViewMenuAttendee.add(buttonGoToExamViewMenuAttendee);
-        panelViewMenuAttendee.add(buttonViewResultsViewMenuAttendee);
-        panelViewMenuAttendee.add(buttonLogoutViewMenuAttendee);
-    }
-
-    private void addActionEvent() {
-        buttonGoToExamViewMenuAttendee.addActionListener(event -> {
-            this.dispose();
-            new RoomAttendee(loginUser); 
-        });
-        buttonViewResultsViewMenuAttendee.addActionListener(event -> {
-            this.dispose();
+        SwingUtilities.invokeLater(() -> {
+            MenuAttendee attendeeFrame = null;
             try {
-                new ResultAttendee(loginUser); 
+                attendeeFrame = new MenuAttendee(2);
             } catch (SQLException ex) {
                 Logger.getLogger(MenuAttendee.class.getName()).log(Level.SEVERE, null, ex);
             }
+            attendeeFrame.showFrame();
         });
-        buttonLogoutViewMenuAttendee.addActionListener(event -> {
-            this.dispose();
-            new Login();
-        });
-    }
-
-    private void createUIComponents() {
     }
 }
