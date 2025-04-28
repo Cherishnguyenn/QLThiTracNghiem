@@ -18,28 +18,37 @@ public class MenuAttendee {
     public MenuAttendee(int userID) throws SQLException {
         this.userID = userID;
 
-        
         f = new JFrame("Attendee Menu");
         f.setSize(800, 600);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setLocationRelativeTo(null);
         f.setLayout(new BorderLayout());
 
-        
         JPanel userPanel = createUserPanel();
         f.add(userPanel, BorderLayout.NORTH);
 
-        
         JPanel mainPanel = new JPanel(null);
         mainPanel.setPreferredSize(new Dimension(800, 550));
         f.add(mainPanel, BorderLayout.CENTER);
 
-        
         JPanel takeQuizPanel = createPanel("Làm bài thi",
-                "C:\\Users\\ASUS\\Downloads\\img java\\assigment.png", 170, 90, null); // No action for this panel yet
+                "C:\\Users\\ASUS\\Downloads\\img java\\assigment.png", 170, 90, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        f.dispose();
+                        try {
+                            // You'll need to determine the specific exam the student should take here.
+                            // For now, let's assume a fixed examID (e.g., 1).
+                            int examID = 1;
+                            new TakeQuizGUI(userID, examID);
+                        } catch (SQLException ex) {
+                            Logger.getLogger(MenuAttendee.class.getName()).log(Level.SEVERE, "Error creating TakeQuizGUI", ex);
+                            JOptionPane.showMessageDialog(f, "Lỗi khi mở bài thi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
         mainPanel.add(takeQuizPanel);
 
-        
         JPanel viewHistoryPanel = createPanel("Xem điểm thi",
                 "C:\\Users\\ASUS\\Downloads\\img java\\graduation.png", 450, 90, new ActionListener() {
                     @Override
@@ -57,7 +66,7 @@ public class MenuAttendee {
 
         
         JPanel profilePanel = createPanel("Thông tin cá nhân",
-                "C:\\Users\\ASUS\\Downloads\\img java\\user.png", 170, 350, null); 
+                "C:\\Users\\ASUS\\Downloads\\img java\\user.png", 170, 350, null);
         mainPanel.add(profilePanel);
 
         f.pack();
@@ -68,11 +77,9 @@ public class MenuAttendee {
         JPanel userPanel = new JPanel(null);
         userPanel.setBackground(Color.decode("#A0E7E7"));
         userPanel.setPreferredSize(new Dimension(800, 50));
-
-        
+     
         String userName = UserBUS.getUserName(userID);
-
-        
+ 
         JLabel userLabel = new JLabel(userName);
         userLabel.setBounds(600, 11, 300, 30);
         userLabel.setFont(new Font("Arial", Font.BOLD, 17));
@@ -104,18 +111,18 @@ public class MenuAttendee {
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // Hình ảnh
+        
         JLabel imageLabel = new JLabel(
                 new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH)));
         gbc.gridy = 0;
         panel.add(imageLabel, gbc);
 
-        
+       
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         titleLabel.setVerticalAlignment(SwingConstants.TOP);
-        titleLabel.setBorder(new EmptyBorder(10, 0, 10, 0)); 
+        titleLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
 
         gbc.gridy = 1;
         panel.add(titleLabel, gbc);
@@ -126,11 +133,11 @@ public class MenuAttendee {
             button.addActionListener(actionListener);
             panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         } else {
-            panel.setCursor(Cursor.getDefaultCursor()); 
+            panel.setCursor(Cursor.getDefaultCursor());
         }
         gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL; 
-        gbc.insets = new Insets(5, 20, 20, 20); 
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 20, 20, 20);
         panel.add(button, gbc);
 
         return panel;
