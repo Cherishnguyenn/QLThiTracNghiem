@@ -88,8 +88,13 @@ public class StudentFrameGUI {
             }
         });
         
+        // Panel 4: Xem và làm bài kiểm tra
+        JPanel ExamPanel = createPanel("Xem và làm bài kiểm tra",
+                "quizmanagementsystem/src/main/resources/img/analytics.png", 800, 90);
+        mainpanel.add(ExamPanel);
+
         // Thêm sự kiện chuyển sang ExamGUI
-        testResultPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+        ExamPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 f.dispose(); // Đóng StudentFrameGUI
