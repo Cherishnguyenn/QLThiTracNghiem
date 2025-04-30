@@ -5,6 +5,9 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -20,13 +23,13 @@ public class StudentFrameGUI {
 
         // Frame
         f = new JFrame("Quiz Management System");
-        f.setSize(800, 600);
+        f.setSize(1040, 450);
         f.setLayout(null);
 
         // Thanh hiển thị tên người dùng
         JPanel userpanel = new JPanel();
         userpanel.setBackground(Color.decode("#C3F5FF"));
-        userpanel.setBounds(0, 0, 800, 50);
+        userpanel.setBounds(0, 0, 1040, 50);
         userpanel.setLayout(null);
 
         // Lấy tên sinh viên từ userID
@@ -82,6 +85,19 @@ public class StudentFrameGUI {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 f.dispose(); // Đóng StudentFrameGUI
                 new StudentScoreGUI(userID); // Mở giao diện mới
+            }
+        });
+        
+        // Thêm sự kiện chuyển sang ExamGUI
+        testResultPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                f.dispose(); // Đóng StudentFrameGUI
+                try {
+                    new ExamGUI(userID); // Mở giao diện mới
+                } catch (SQLException ex) {
+                    Logger.getLogger(StudentFrameGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
 
