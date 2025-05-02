@@ -67,8 +67,21 @@ public class AdminFrameGUI {
         // Label user icon
         JLabel userIcon = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png")
                 .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
-        userIcon.setBounds(730, 11, 30, 30);
+        userIcon.setBounds(725, 11, 30, 30);
         userPanel.add(userIcon);
+
+        //Label đăng xuất
+        JLabel logoutLabel = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/enter.png")
+                .getImage().getScaledInstance(25, 30, Image.SCALE_SMOOTH)));
+        logoutLabel.setBounds(765, 11, 25, 30);
+        userPanel.add(logoutLabel);
+
+        logoutLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    f.dispose();
+                    new LoginGUI();
+            }
+        });
 
         return userPanel;
     }

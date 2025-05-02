@@ -23,7 +23,7 @@ public class StudentFrameGUI {
 
         // Frame
         f = new JFrame("Quiz Management System");
-        f.setSize(1040, 450);
+        f.setSize(800, 600);
         f.setLayout(null);
 
         // Thanh hiển thị tên người dùng
@@ -49,14 +49,25 @@ public class StudentFrameGUI {
         mainlabel.setFont(new Font("Arial", Font.BOLD, 17));
         userpanel.add(mainlabel);
 
-        // Label user
-        JLabel user = new JLabel();
-        user.setBounds(730, 11, 30, 30);
+// Label user icon
+JLabel userIcon = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png")
+.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
+userIcon.setBounds(705, 11, 30, 30);
+userpanel.add(userIcon);
 
-        ImageIcon usersign = new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png");
-        Image imguser = usersign.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        user.setIcon(new ImageIcon(imguser));
-        userpanel.add(user);
+//Label đăng xuất
+JLabel logoutLabel = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/enter.png")
+.getImage().getScaledInstance(25, 30, Image.SCALE_SMOOTH)));
+logoutLabel.setBounds(750, 11, 25, 30);
+userpanel.add(logoutLabel);
+
+logoutLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+public void mouseClicked(java.awt.event.MouseEvent evt) {
+    f.dispose();
+    new LoginGUI();
+}
+});
+
 
         // Mainframe
         JLayeredPane mainpanel = new JLayeredPane();

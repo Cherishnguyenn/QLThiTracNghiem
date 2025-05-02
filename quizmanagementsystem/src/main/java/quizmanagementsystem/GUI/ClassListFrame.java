@@ -62,7 +62,7 @@ public class ClassListFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 TeacherFrameGUI teacherframe = new TeacherFrameGUI(userID);
                 teacherframe.showFrame();
-                
+
                 // Đóng frame hiện tại
                 JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(backlabel);
                 if (currentFrame != null) {
@@ -77,14 +77,24 @@ public class ClassListFrame {
         mainlabel.setFont(new Font("Arial", Font.BOLD, 17));
         userpanel.add(mainlabel);
 
-        // Label user
-        JLabel user = new JLabel();
-        user.setBounds(730, 11, 30, 30);
+        // Label user icon
+        JLabel userIcon = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png")
+                .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
+        userIcon.setBounds(725, 11, 30, 30);
+        userpanel.add(userIcon);
 
-        ImageIcon usersign = new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png");
-        Image imguser = usersign.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        user.setIcon(new ImageIcon(imguser));
-        userpanel.add(user);
+        //Label đăng xuất
+        JLabel logoutLabel = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/enter.png")
+                .getImage().getScaledInstance(25, 30, Image.SCALE_SMOOTH)));
+        logoutLabel.setBounds(750, 11, 25, 30);
+        userpanel.add(logoutLabel);
+
+        logoutLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    f.dispose();
+                    new LoginGUI();
+            }
+        });
 
         // ==========================Bộ lọc - Tìm kiếm - Button
         // ==========================
@@ -98,7 +108,8 @@ public class ClassListFrame {
         addButton.setBackground(Color.decode("#9EFFD7"));
         filterPanel.add(addButton);
 
-        // ==========================Action thêm============================================
+        // ==========================Action
+        // thêm============================================
         addButton.addActionListener(e -> {
             // Sinh mã lớp tự động
             String generatedClassID = ClassBUS.generateClassCode();
@@ -132,7 +143,7 @@ public class ClassListFrame {
                     if (isInserted) {
                         JOptionPane.showMessageDialog(null, "Thêm lớp thành công!", "Thông báo",
                                 JOptionPane.INFORMATION_MESSAGE);
-                        loadClassData(); // 🔥 Cập nhật lại bảng sau khi thêm
+                        loadClassData(); //  Cập nhật lại bảng sau khi thêm
                     } else {
                         JOptionPane.showMessageDialog(null, "Lỗi khi thêm lớp!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
@@ -308,6 +319,7 @@ public class ClassListFrame {
             }
         }
     }
+    
 
     // Hàm hiển thị menu sxep
     private void showSortMenu(java.awt.event.MouseEvent evt) {

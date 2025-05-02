@@ -127,7 +127,7 @@ public class LoginGUI extends JFrame {
         String role = UserBUS.loginUser(email, password);
 
         if (role == null) {
-            JOptionPane.showMessageDialog(this, "Sai email hoặc mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Sai email hoặc mật khẩu!", null, JOptionPane.ERROR_MESSAGE);
             return;
         }
 
