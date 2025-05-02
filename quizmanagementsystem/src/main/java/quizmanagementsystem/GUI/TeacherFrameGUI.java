@@ -94,7 +94,18 @@ public void mouseClicked(java.awt.event.MouseEvent evt) {
                 new ClassListFrame(userID); // Mở giao diện mới
             }
         });
-
+        topicpanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                f.dispose(); // Close TeacherFrameGUI
+                try {
+                    ExamManagement examManagementGUI = new ExamManagement(userID); // Open ExamManagementGUI
+                } catch (Exception ex) {
+                    Logger.getLogger(TeacherFrameGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
         f.add(mainpanel);
         f.setResizable(false);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
