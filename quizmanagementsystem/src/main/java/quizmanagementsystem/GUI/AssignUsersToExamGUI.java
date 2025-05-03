@@ -112,16 +112,16 @@ public class AssignUsersToExamGUI extends JFrame {
     }
 
     private void loadUsers() throws SQLException {
-        availableUserModel.clear();
-        allUsers.clear();
-        List<UserDTO> users = UserDAO.getAllUsers();
-        for (UserDTO user : users) {
-            if (!user.getRole().equalsIgnoreCase("teacher")) { // Only list students
-                allUsers.add(user);
-                availableUserModel.addElement(user.getName() + " (" + user.getEmail() + ")");
-            }
+    availableUserModel.clear();
+    allUsers.clear();
+    List<UserDTO> users = UserDAO.getAllUsers();
+    for (UserDTO user : users) {
+        if (!user.getRole().equalsIgnoreCase("teacher") && !user.getRole().equalsIgnoreCase("admin")) { // Chỉ liệt kê học sinh
+            allUsers.add(user);
+            availableUserModel.addElement(user.getName() + " (" + user.getEmail() + ")");
         }
     }
+}
 
     private void moveUsers(JList<String> sourceList, DefaultListModel<String> sourceModel, JList<String> destList, DefaultListModel<String> destModel, boolean removing) {
         List<String> selectedUsersDisplay = sourceList.getSelectedValuesList();
@@ -131,14 +131,14 @@ public class AssignUsersToExamGUI extends JFrame {
                 sourceModel.removeElement(userDisplay);
 
                 String email = userDisplay.substring(userDisplay.lastIndexOf("(") + 1, userDisplay.lastIndexOf(")"));
-                for (UserDTO user : new ArrayList<>(allUsers)) { // Iterate over a copy to avoid ConcurrentModificationException
+                for (UserDTO user : new ArrayList<>(allUsers)) { 
                     if (user.getEmail().equals(email)) {
                         if (removing) {
                             assignedUsers.remove(user);
                             allUsers.add(user); // Add back to allUsers if removed from assigned
                         } else if (!assignedUsers.contains(user)) {
                             assignedUsers.add(user);
-                            allUsers.remove(user); // Remove from allUsers if added to assigned
+                            allUsers.remove(user);
                         }
                         break;
                     }
@@ -163,7 +163,6 @@ public class AssignUsersToExamGUI extends JFrame {
         examBUS.assignExamToUsers(examIDToAssign, assignedUsers);
         JOptionPane.showMessageDialog(this, "Đã phân công bài thi '" + examName + "' cho " + assignedUsers.size() + " người dùng.");
         dispose(); // Close the assignment window after saving
-        // Hiện thông báo thành công ở đây
         JOptionPane.showMessageDialog(this, "Đã lưu phân công thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
