@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AssignUsersToExamGUI extends JFrame {
-    private final JFrame f;
+
     private final int teacherID;
     private final String examName;
     private JList<String> availableUserList;
@@ -43,21 +43,47 @@ public class AssignUsersToExamGUI extends JFrame {
     }
 
     private void initialize() {
-        f = new JFrame("Phân công người dùng cho bài thi: " + examName);
-        f.setSize(600, 400);
-        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        f.setLocationRelativeTo(null);
-        f.setLayout(new BorderLayout());
+        setTitle("Phân công người dùng cho bài thi: " + examName);
+        setSize(600, 400);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         headerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         JLabel titleLabel = new JLabel("Phân công người dùng cho bài thi: " + examName);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
         headerPanel.add(titleLabel);
-        f.add(headerPanel, BorderLayout.NORTH);
+        add(headerPanel, BorderLayout.NORTH);
 
         JPanel mainPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-        mainPanel.setBorder(new Ecông
+        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JPanel availablePanel = new JPanel(new BorderLayout());
+        JLabel availableLabel = new JLabel("Người dùng có sẵn:");
+        availableUserModel = new DefaultListModel<>();
+        availableUserList = new JList<>(availableUserModel);
+        JScrollPane availableScrollPane = new JScrollPane(availableUserList);
+        availablePanel.add(availableLabel, BorderLayout.NORTH);
+        availablePanel.add(availableScrollPane, BorderLayout.CENTER);
+        mainPanel.add(availablePanel);
+
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(10, 5, 10, 5);
+        assignButton = new JButton(">>");
+        assignButton.addActionListener(e -> moveUsers(availableUserList, availableUserModel, assignedUserList, assignedUserModel, false));
+        buttonPanel.add(assignButton, gbc);
+        gbc.gridy++;
+        removeButton = new JButton("<<");
+        removeButton.addActionListener(e -> moveUsers(assignedUserList, assignedUserModel, availableUserList, availableUserModel, true));
+        buttonPanel.add(removeButton, gbc);
+        mainPanel.add(buttonPanel);
+
+        
         JPanel assignedPanel = new JPanel(new BorderLayout());
         JLabel assignedLabel = new JLabel("Người dùng đã phân công:");
         assignedUserModel = new DefaultListModel<>();
@@ -73,7 +99,7 @@ public class AssignUsersToExamGUI extends JFrame {
         saveAssignmentsButton = new JButton("Lưu phân công");
         saveAssignmentsButton.addActionListener(e -> saveUserAssignments());
         bottomPanel.add(saveAssignmentsButton);
-        f.add(bottomPanel, BorderLayout.SOUTH);
+        add(bottomPanel, BorderLayout.SOUTH);
 
         try {
             loadUsers();
@@ -90,7 +116,7 @@ public class AssignUsersToExamGUI extends JFrame {
         allUsers.clear();
         List<UserDTO> users = UserDAO.getAllUsers();
         for (UserDTO user : users) {
-            if (!user.getRole().equalsIgnoreCase("teacher")) { 
+            if (!user.getRole().equalsIgnoreCase("teacher")) { // Only list students
                 allUsers.add(user);
                 availableUserModel.addElement(user.getName() + " (" + user.getEmail() + ")");
             }
@@ -104,16 +130,15 @@ public class AssignUsersToExamGUI extends JFrame {
                 destModel.addElement(userDisplay);
                 sourceModel.removeElement(userDisplay);
 
-                //Cập nhật Danh sách được lựa chọn dựa trên tên và email được hiển thị
                 String email = userDisplay.substring(userDisplay.lastIndexOf("(") + 1, userDisplay.lastIndexOf(")"));
-                for (UserDTO user : new ArrayList<>(allUsers)) { 
+                for (UserDTO user : new ArrayList<>(allUsers)) { // Iterate over a copy to avoid ConcurrentModificationException
                     if (user.getEmail().equals(email)) {
                         if (removing) {
                             assignedUsers.remove(user);
-                            allUsers.add(user); 
+                            allUsers.add(user); // Add back to allUsers if removed from assigned
                         } else if (!assignedUsers.contains(user)) {
                             assignedUsers.add(user);
-                            allUsers.remove(user);
+                            allUsers.remove(user); // Remove from allUsers if added to assigned
                         }
                         break;
                     }
@@ -135,9 +160,10 @@ public class AssignUsersToExamGUI extends JFrame {
         }
 
         ExamBUS examBUS = new ExamBUS();
-        examBUS.assignExamToUsers(examIDToAssign, assignedUsers); 
+        examBUS.assignExamToUsers(examIDToAssign, assignedUsers);
         JOptionPane.showMessageDialog(this, "Đã phân công bài thi '" + examName + "' cho " + assignedUsers.size() + " người dùng.");
-        dispose(); 
+        dispose(); // Close the assignment window after saving
+        // Hiện thông báo thành công ở đây
         JOptionPane.showMessageDialog(this, "Đã lưu phân công thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
