@@ -19,14 +19,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CreateExamGUI extends JFrame {
-    private final int teacherID;
+    private int teacherID;
     private JTextField newExamNameTextField;
     private JTextField newExamIdTextField;
     private JComboBox<String> classComboBox;
     private JSpinner examDateField;
     private JComboBox<String> examTypeComboBox;
     private JSpinner examTimeField;
-    private final JFrame f;
+    private JFrame f;
     private JList<String> selectedQuestionList;
     private DefaultListModel<String> selectedQuestionListModel;
     private JButton browseQuestionsButton;
@@ -127,7 +127,6 @@ public class CreateExamGUI extends JFrame {
 
         f.add(new JScrollPane(inputPanel), BorderLayout.CENTER);
 
-        // Load initial data
         loadClasses();
 
         f.setVisible(true);
