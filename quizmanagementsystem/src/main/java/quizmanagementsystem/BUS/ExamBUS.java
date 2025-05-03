@@ -56,14 +56,6 @@ public class ExamBUS {
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
-        } finally {
-            JDBCUtil.closeConnection();
-            try {
-                if (questionStmt != null) questionStmt.close();
-                if (answerStmt != null) answerStmt.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         return questionList;
     }
@@ -91,21 +83,12 @@ public class ExamBUS {
                 generatedKeys = examStmt.getGeneratedKeys();
                 if (generatedKeys.next()) {
                     newExamID = generatedKeys.getInt(1);
-                    // Now link the selected questions to this exam
                     linkQuestionsToExam(connection, newExamID, questions);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
-        } finally {
-            JDBCUtil.closeConnection();
-            try {
-                if (examStmt != null) examStmt.close();
-                if (generatedKeys != null) generatedKeys.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         return newExamID;
     }
@@ -193,13 +176,6 @@ public class ExamBUS {
 
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            JDBCUtil.closeConnection();
-            try {
-                if (preparedStatement != null) preparedStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        } 
     }
 }
