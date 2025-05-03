@@ -1,145 +1,181 @@
 package GUI;
 
+import BUS.ExamBUS;
 import BUS.UserBUS;
-import java.awt.Color;
-import java.awt.Font;
+import DAO.UserDAO;
+import DTO.QuestionDTO;
+import DTO.UserDTO;
 import javax.swing.*;
 import javax.swing.JFrame;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ExamManagement {
-
-    private int teacherID;
+public class AssignUsersToExamGUI {
     private JFrame f;
+    private int teacherID;
+    private final String examName;
+    private JList<String> availableUserList;
+    private DefaultListModel<String> availableUserModel;
+    private JList<String> assignedUserList;
+    private DefaultListModel<String> assignedUserModel;
+    private JButton assignButton;
+    private JButton removeButton;
+    private JButton saveAssignmentsButton;
+    private List<UserDTO> allUsers = new ArrayList<>();
+    private List<UserDTO> assignedUsers = new ArrayList<>();
+    private int examIDToAssign = -1;
+    private static List<QuestionDTO> selectedQuestions;
 
-    public ExamManagement(int teacherID) throws SQLException {
+    public AssignUsersToExamGUI(int teacherID, String examName, int examID, List<QuestionDTO> selectedQuestions) {
         this.teacherID = teacherID;
-        f = new JFrame("Quản Lý Đề Thi");
-        f.setSize(800, 600);
-        f.setLayout(null);
-
-        JPanel userpanel = new JPanel();
-        userpanel.setBackground(Color.decode("#C3F5FF"));
-        userpanel.setBounds(0, 0, 800, 50);
-        f.add(userpanel, BorderLayout.NORTH);
-        userpanel.setLayout(null);
-
-        String teacherName = UserBUS.getUserName(teacherID);
-
-        JLabel userlabel = new JLabel(teacherName);
-        userlabel.setBounds(600, 11, 300, 30);
-        userlabel.setFont(new Font("Arial", Font.BOLD, 17));
-        userlabel.setForeground(Color.WHITE);
-        userpanel.add(userlabel);
-
-        JLabel mainlabel = new JLabel("Quản Lý Bài Thi");
-        mainlabel.setBounds(30, 11, 200, 30);
-        mainlabel.setForeground(Color.WHITE);
-        mainlabel.setFont(new Font("Arial", Font.BOLD, 17));
-        userpanel.add(mainlabel);
-
-        JLabel user = new JLabel();
-        user.setBounds(730, 11, 30, 30);
-
-        ImageIcon usersign = new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png");
-        Image imguser = usersign.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        user.setIcon(new ImageIcon(imguser));
-        userpanel.add(user);
-
-        // Mainframe
-        JLayeredPane mainpanel = new JLayeredPane();
-        mainpanel.setBounds(0, 50, 800, 550);
-        mainpanel.setLayout(null);
-        f.add(userpanel);
-
-        // Panel tạo bài thi
-        JPanel createpanel = createHeaderPanel("Tạo Bài Thi", "quizmanagementsystem/src/main/resources/img/question-mark.png",
-                50, 90);
-        mainpanel.add(createpanel);
-
-        // Panel sửa/xóa bài thi 
-        JPanel editdeletepanel = createHeaderPanel("Sửa/ Xóa Bài Thi", "quizmanagementsystem/src/main/resources/img/search.png",
-                300, 90); // Changed X coordinate to 300
-        mainpanel.add(editdeletepanel);
-
-        createpanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                f.dispose();
-                try{
-                    CreateExamGUI createExamGUI = new CreateExamGUI(teacherID);
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        editdeletepanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                f.dispose();
-                try{
-                    EditDeleteExamGUI editDeleteExamGUI = new EditDeleteExamGUI(teacherID);
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
-        f.add(mainpanel);
-        f.setResizable(false);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.setLocationRelativeTo(null);
-        f.setVisible(true);
+        this.examName = examName;
+        this.examIDToAssign = examID;  
+        this.selectedQuestions = selectedQuestions;
+        initialize();
     }
 
-    private JPanel createHeaderPanel(String title, String imagePath, int x, int y) {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(Color.decode("#C3F5FF"));
-        panel.setBounds(x, y, 180, 250);
+    private void initialize() {
+        f = new JFrame("Phân công người dùng cho bài thi: " + examName);
+        f.setSize(600, 400);
+        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        f.setLocationRelativeTo(null);
+        f.setLayout(new BorderLayout());
 
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        headerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        JLabel titleLabel = new JLabel("Phân công người dùng cho bài thi: " + examName);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        headerPanel.add(titleLabel);
+        f.add(headerPanel, BorderLayout.NORTH);
+
+        JPanel mainPanel = new JPanel(new GridLayout(1, 3, 10, 10));
+        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Available Users List
+        JPanel availablePanel = new JPanel(new BorderLayout());
+        JLabel availableLabel = new JLabel("Người dùng có sẵn:");
+        availableUserModel = new DefaultListModel<>();
+        availableUserList = new JList<>(availableUserModel);
+        JScrollPane availableScrollPane = new JScrollPane(availableUserList);
+        availablePanel.add(availableLabel, BorderLayout.NORTH);
+        availablePanel.add(availableScrollPane, BorderLayout.CENTER);
+        mainPanel.add(availablePanel);
+
+        // Buttons Panel
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-
-        // Hình ảnh
-        JLabel imageLabel = new JLabel();
-        ImageIcon imageIcon = new ImageIcon(imagePath);
-        Image img = imageIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
-        imageLabel.setIcon(new ImageIcon(img));
-
         gbc.gridy = 0;
-        panel.add(imageLabel, gbc);
+        gbc.insets = new Insets(10, 5, 10, 5);
+        assignButton = new JButton(">>");
+        assignButton.addActionListener(e -> moveUsers(availableUserList, availableUserModel, assignedUserList, assignedUserModel, false));
+        buttonPanel.add(assignButton, gbc);
+        gbc.gridy++;
+        removeButton = new JButton("<<");
+        removeButton.addActionListener(e -> moveUsers(assignedUserList, assignedUserModel, availableUserList, availableUserModel, true));
+        buttonPanel.add(removeButton, gbc);
+        mainPanel.add(buttonPanel);
 
-        // Tiêu đề
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setVerticalAlignment(SwingConstants.TOP);
-        titleLabel.setBorder(new EmptyBorder(10, 0, 0, 0));
-        gbc.gridy = 1;
-        panel.add(titleLabel, gbc);
+        // Assigned Users List
+        JPanel assignedPanel = new JPanel(new BorderLayout());
+        JLabel assignedLabel = new JLabel("Người dùng đã phân công:");
+        assignedUserModel = new DefaultListModel<>();
+        assignedUserList = new JList<>(assignedUserModel);
+        JScrollPane assignedScrollPane = new JScrollPane(assignedUserList);
+        assignedPanel.add(assignedLabel, BorderLayout.NORTH);
+        assignedPanel.add(assignedScrollPane, BorderLayout.CENTER);
+        mainPanel.add(assignedPanel);
 
-        return panel;
+        f.add(mainPanel, BorderLayout.CENTER);
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        saveAssignmentsButton = new JButton("Lưu phân công");
+        saveAssignmentsButton.addActionListener(e -> saveUserAssignments());
+        bottomPanel.add(saveAssignmentsButton);
+        f.add(bottomPanel, BorderLayout.SOUTH);
+
+        try {
+            loadUsers();
+        } catch (SQLException ex) {
+            Logger.getLogger(AssignUsersToExamGUI.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Lỗi khi tải người dùng: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+
+        f.setVisible(true);
     }
 
-    public void showFrame() {
-        f.setVisible(true);
+    private void loadUsers() throws SQLException {
+    availableUserModel.clear();
+    allUsers.clear();
+    List<UserDTO> users = UserDAO.getAllUsers();
+    for (UserDTO user : users) {
+        if (!user.getRole().equalsIgnoreCase("teacher") && !user.getRole().equalsIgnoreCase("admin")) { // Chỉ liệt kê học sinh
+            allUsers.add(user);
+            availableUserModel.addElement(user.getName() + " (" + user.getEmail() + ")");
+        }
+    }
+}
+
+    private void moveUsers(JList<String> sourceList, DefaultListModel<String> sourceModel, JList<String> destList, DefaultListModel<String> destModel, boolean removing) {
+        List<String> selectedUsersDisplay = sourceList.getSelectedValuesList();
+        if (!selectedUsersDisplay.isEmpty()) {
+            for (String userDisplay : selectedUsersDisplay) {
+                destModel.addElement(userDisplay);
+                sourceModel.removeElement(userDisplay);
+
+                String email = userDisplay.substring(userDisplay.lastIndexOf("(") + 1, userDisplay.lastIndexOf(")"));
+                for (UserDTO user : new ArrayList<>(allUsers)) { 
+                    if (user.getEmail().equals(email)) {
+                        if (removing) {
+                            assignedUsers.remove(user);
+                            allUsers.add(user); 
+                        } else if (!assignedUsers.contains(user)) {
+                            assignedUsers.add(user);
+                            allUsers.remove(user); 
+                        }
+                        break;
+                    }
+                }
+            }
+            sourceList.clearSelection();
+        }
+    }
+
+    private void saveUserAssignments() {
+        if (examIDToAssign == -1) {
+            JOptionPane.showMessageDialog(null, "Không có ID bài thi để phân công.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (assignedUsers.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Vui lòng chọn người dùng để phân công.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        ExamBUS examBUS = new ExamBUS();
+        examBUS.assignExamToUsers(examIDToAssign, assignedUsers);
+        JOptionPane.showMessageDialog(null, "Đã phân công bài thi '" + examName + "' cho " + assignedUsers.size() + " người dùng.");
+        f.dispose(); 
+        JOptionPane.showMessageDialog(null, "Đã lưu phân công thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                new ExamManagement(5);
-            } catch (SQLException ex) {
-                Logger.getLogger(ExamManagement.class.getName()).log(Level.SEVERE, null, ex);
+                int teacherId = 1;
+                String examName = "Test Exam";
+                int examId = 1;
+                List<QuestionDTO> selectedQuestions = new ArrayList<>();
+                AssignUsersToExamGUI assignUsersToExamGUI = new AssignUsersToExamGUI(teacherId, examName, examId, selectedQuestions);
+            } catch (Exception ex) {
+                Logger.getLogger(AssignUsersToExamGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
