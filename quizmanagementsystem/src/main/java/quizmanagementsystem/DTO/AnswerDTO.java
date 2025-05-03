@@ -47,7 +47,7 @@ public class AnswerDTO {
     
     // Getters and setters
 
-    public AnswerDTO(int answerId, String answerText, boolean correct) {
+    public AnswerDTO(int answerId, int questionId, String answerText, boolean correct) {
         this.answerId = answerId;
         this.questionId = questionId;
         this.answerText = answerText;
