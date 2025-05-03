@@ -10,7 +10,7 @@ package quizmanagementsystem.DTO;
  */
 public class AnswerDTO {
     private int answerId;
-    private int questionID;
+    private int questionId;
     private String answerText;
     private boolean correct;
 
@@ -22,12 +22,12 @@ public class AnswerDTO {
         this.answerId = answerId;
     }
     
-    public int getQuestionID() {
-        return questionID;
+    public int getQuestionId() {
+        return questionId;
     }
 
-    public void setQuestionID(int questionID) {
-        this.questionID = questionID;
+    public void setQuestionId(int questionId) {
+        this.questionId = questionId;
     }
     public String getAnswerText() {
         return answerText;
@@ -49,7 +49,7 @@ public class AnswerDTO {
 
     public AnswerDTO(int answerId, String answerText, boolean correct) {
         this.answerId = answerId;
-        this.questionID = questionID;
+        this.questionId = questionId;
         this.answerText = answerText;
         this.correct = correct;
     }
