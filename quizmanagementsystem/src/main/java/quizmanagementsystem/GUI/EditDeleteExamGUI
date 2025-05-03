@@ -18,9 +18,9 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 
-public class EditDeleteExamGUI extends JFrame {
-    private final int teacherID;
-    private final JFrame f;
+public class EditDeleteExamGUI{
+    private int teacherID;
+    private JFrame f;
     private JTable examTable;
     private DefaultTableModel examTableModel;
     private JButton editButton;
@@ -69,19 +69,10 @@ public class EditDeleteExamGUI extends JFrame {
 
         f.add(buttonPanel, BorderLayout.SOUTH);
 
-        try {
-            conn = JDBCUtil.getConnection();
-            loadExams();
-        } catch (SQLException ex) {
-            Logger.getLogger(EditDeleteExamGUI.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Lỗi khi kết nối đến cơ sở dữ liệu: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
+        conn = JDBCUtil.getConnection();
+        loadExams();
 
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosed(java.awt.event.WindowEvent evt) {
-                JDBCUtil.closeConnection();
-            }
+        f.addWindowListener(new java.awt.event.WindowAdapter() {
         });
 
         f.setVisible(true);
@@ -91,7 +82,6 @@ public class EditDeleteExamGUI extends JFrame {
         try {
             examTableModel.setRowCount(0);
             examTableModel.setColumnCount(0);
-
             examTableModel.addColumn("ExamID");
             examTableModel.addColumn("ClassID");
             examTableModel.addColumn("ExamName");
@@ -108,7 +98,7 @@ public class EditDeleteExamGUI extends JFrame {
                 row.add(rs.getInt("ExamID"));
                 row.add(rs.getString("ClassID"));
                 row.add(rs.getString("ExamName"));
-                row.add(rs.getDate("ExamDateOnly"));
+                row.add(rs.getDate("ExamDateOnly")); // Chỉ lấy phần ngày
                 row.add(rs.getString("ExamType"));
                 row.add(rs.getString("ExamTime"));
                 examTableModel.addRow(row);
@@ -126,13 +116,13 @@ public class EditDeleteExamGUI extends JFrame {
 
         } catch (SQLException ex) {
             Logger.getLogger(EditDeleteExamGUI.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải danh sách bài thi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Lỗi khi tải danh sách bài thi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void editExam() {
         if (selectedExamID == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một bài thi để sửa.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Vui lòng chọn một bài thi để sửa.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -148,7 +138,7 @@ public class EditDeleteExamGUI extends JFrame {
                 String examType = rs.getString("ExamType");
                 String examTime = rs.getString("ExamTime");
 
-                JDialog dialog = new JDialog(this, "Sửa bài thi", true);
+                JDialog dialog = new JDialog(f, "Sửa bài thi", true);
                 dialog.setLayout(new GridBagLayout());
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(5, 10, 5, 10);
@@ -237,7 +227,7 @@ public class EditDeleteExamGUI extends JFrame {
                 dialog.add(saveButton, gbc);
 
                 dialog.pack();
-                dialog.setLocationRelativeTo(this);
+                dialog.setLocationRelativeTo(null);
                 dialog.setVisible(true);
             }
             rs.close();
@@ -245,17 +235,17 @@ public class EditDeleteExamGUI extends JFrame {
 
         } catch (SQLException ex) {
             Logger.getLogger(EditDeleteExamGUI.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Lỗi khi lấy thông tin bài thi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Lỗi khi lấy thông tin bài thi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void deleteExam() {
     if (selectedExamID == null) {
-        JOptionPane.showMessageDialog(this, "Vui lòng chọn một bài thi để xóa.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Vui lòng chọn một bài thi để xóa.", "Thông báo", JOptionPane.WARNING_MESSAGE);
         return;
     }
 
-    int choice = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa bài thi này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+    int choice = JOptionPane.showConfirmDialog(null, "Bạn có chắc chắn muốn xóa bài thi này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
     if (choice == JOptionPane.YES_OPTION) {
         try {
             String deleteQuestionsQuery = "DELETE FROM examquestions WHERE ExamID = ?";
@@ -270,12 +260,12 @@ public class EditDeleteExamGUI extends JFrame {
             deleteExamStmt.executeUpdate();
             deleteExamStmt.close();
 
-            JOptionPane.showMessageDialog(this, "Đã xóa bài thi thành công.", "Thành công", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Đã xóa bài thi thành công.", "Thành công", JOptionPane.INFORMATION_MESSAGE);
             loadExams();
             selectedExamID = null;
         } catch (SQLException ex) {
             Logger.getLogger(EditDeleteExamGUI.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Lỗi khi xóa bài thi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Lỗi khi xóa bài thi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
