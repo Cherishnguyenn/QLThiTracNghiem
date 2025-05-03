@@ -5,7 +5,6 @@ import DTO.AnswerDTO;
 import DTO.ExamsDTO;
 import DTO.QuestionDTO;
 import DTO.UserDTO;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,49 +15,49 @@ import java.util.List;
 public class ExamBUS {
 
     public List<QuestionDTO> getAllQuestionsFromBank() throws SQLException {
-        List<QuestionDTO> questionList = new ArrayList<>();
-        Connection connection = null;
-        PreparedStatement questionStmt = null;
-        ResultSet questionRs = null;
-        PreparedStatement answerStmt = null;
-        ResultSet answerRs = null;
+    List<QuestionDTO> questionList = new ArrayList<>();
+    Connection connection = null;
+    PreparedStatement questionStmt = null;
+    ResultSet questionRs = null;
+    PreparedStatement answerStmt = null;
+    ResultSet answerRs = null;
 
-        try {
-            connection = JDBCUtil.getConnection();
-            String questionSql = "SELECT QuestionID, QuestionText, QuestionType FROM questionbank";
-            questionStmt = connection.prepareStatement(questionSql);
-            questionRs = questionStmt.executeQuery();
+    try {
+        connection = JDBCUtil.getConnection();
+        String questionSql = "SELECT QuestionID, QuestionText, QuestionType FROM questionbank";
+        questionStmt = connection.prepareStatement(questionSql);
+        questionRs = questionStmt.executeQuery();
 
-            String answerSql = "SELECT AnswerID, QuestionID, AnswerText, IsCorrect FROM answers WHERE QuestionID = ?";
-            answerStmt = connection.prepareStatement(answerSql);
+        String answerSql = "SELECT AnswerID, QuestionID, AnswerText, IsCorrect FROM answers WHERE QuestionID = ?";
+        answerStmt = connection.prepareStatement(answerSql);
 
-            while (questionRs.next()) {
-                QuestionDTO question = new QuestionDTO();
-                question.setQuestionID(questionRs.getInt("QuestionID"));
-                question.setQuestionText(questionRs.getString("QuestionText"));
-                question.setQuestionType(questionRs.getString("QuestionType"));
+        while (questionRs.next()) {
+            QuestionDTO question = new QuestionDTO();
+            question.setQuestionID(questionRs.getInt("QuestionID"));
+            question.setQuestionText(questionRs.getString("QuestionText"));
+            question.setQuestionType(questionRs.getString("QuestionType"));
 
-                answerStmt.setInt(1, question.getQuestionID());
-                answerRs = answerStmt.executeQuery();
-                while (answerRs.next()) {
-                    AnswerDTO answer = new AnswerDTO();
-                    answer.setAnswerID(answerRs.getInt("AnswerID"));
-                    answer.setQuestionID(answerRs.getInt("QuestionID"));
-                    answer.setAnswerText(answerRs.getString("AnswerText"));
-                    answer.setCorrect(answerRs.getBoolean("IsCorrect"));
-                    question.addAnswer(answer);
-                }
-                if (answerRs != null) {
-                    answerRs.close();
-                }
-                questionList.add(question);
+            answerStmt.setInt(1, question.getQuestionID());
+            answerRs = answerStmt.executeQuery();
+            while (answerRs.next()) {
+                AnswerDTO answer = new AnswerDTO();
+                answer.setAnswerId(answerRs.getInt("AnswerId"));
+                answer.setQuestionId(answerRs.getInt("QuestionId")); 
+                answer.setAnswerText(answerRs.getString("AnswerText"));
+                answer.setCorrect(answerRs.getBoolean("IsCorrect"));
+                question.addAnswer(answer);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw e;
+            if (answerRs != null) {
+                answerRs.close();
+            }
+            questionList.add(question);
         }
-        return questionList;
+    } catch (SQLException e) {
+        e.printStackTrace();
+        throw e;
     }
+    return questionList;
+}
 
     public int addExam(ExamsDTO exam, List<QuestionDTO> questions) throws SQLException {
         Connection connection = null;
@@ -89,7 +88,8 @@ public class ExamBUS {
         } catch (SQLException e) {
             e.printStackTrace();
             throw e;
-        }
+        } 
+        
         return newExamID;
     }
 
@@ -138,24 +138,14 @@ public class ExamBUS {
                 }
             } else {
                 System.err.println("Error: executeQuery() returned null ResultSet.");
-                
             }
         } else {
             System.err.println("Error: prepareStatement() returned null PreparedStatement. Check your SQL query or connection.");
-           
         }
     } catch (SQLException e) {
         System.err.println("SQLException in getAllExams: " + e.getMessage());
         e.printStackTrace();
         throw e;
-    } finally {
-        JDBCUtil.closeConnection(); 
-        try {
-            if (resultSet != null) resultSet.close();
-            if (preparedStatement != null) preparedStatement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
     return examList;
 }
