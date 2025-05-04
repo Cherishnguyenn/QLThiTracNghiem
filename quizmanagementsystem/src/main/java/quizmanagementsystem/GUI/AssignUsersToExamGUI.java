@@ -1,10 +1,11 @@
-package GUI;
+package quizmanagementsystem.GUI;
 
-import BUS.ExamBUS;
-import BUS.UserBUS;
-import DAO.UserDAO;
-import DTO.QuestionDTO;
-import DTO.UserDTO;
+import quizmanagementsystem.BUS.ExamBUS;
+import quizmanagementsystem.BUS.UserBUS;
+import quizmanagementsystem.DAO.UserDAO;
+import quizmanagementsystem.DTO.QuestionDTO;
+import quizmanagementsystem.DTO.UserDTO;
+
 import javax.swing.*;
 import javax.swing.JFrame;
 import javax.swing.border.EmptyBorder;
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AssignUsersToExamGUI {
+public class AssignUsersToExamGUI extends JFrame {
     private JFrame f;
     private int teacherID;
     private final String examName;
@@ -36,7 +37,7 @@ public class AssignUsersToExamGUI {
     public AssignUsersToExamGUI(int teacherID, String examName, int examID, List<QuestionDTO> selectedQuestions) {
         this.teacherID = teacherID;
         this.examName = examName;
-        this.examIDToAssign = examID;  
+        this.examIDToAssign = examID; 
         this.selectedQuestions = selectedQuestions;
         initialize();
     }
@@ -105,7 +106,7 @@ public class AssignUsersToExamGUI {
             loadUsers();
         } catch (SQLException ex) {
             Logger.getLogger(AssignUsersToExamGUI.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(null, "Lỗi khi tải người dùng: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải người dùng: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
 
         f.setVisible(true);
@@ -129,7 +130,6 @@ public class AssignUsersToExamGUI {
             for (String userDisplay : selectedUsersDisplay) {
                 destModel.addElement(userDisplay);
                 sourceModel.removeElement(userDisplay);
-
                 String email = userDisplay.substring(userDisplay.lastIndexOf("(") + 1, userDisplay.lastIndexOf(")"));
                 for (UserDTO user : new ArrayList<>(allUsers)) { 
                     if (user.getEmail().equals(email)) {
@@ -150,33 +150,18 @@ public class AssignUsersToExamGUI {
 
     private void saveUserAssignments() {
         if (examIDToAssign == -1) {
-            JOptionPane.showMessageDialog(null, "Không có ID bài thi để phân công.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Không có ID bài thi để phân công.", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (assignedUsers.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Vui lòng chọn người dùng để phân công.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn người dùng để phân công.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
-
         ExamBUS examBUS = new ExamBUS();
-        examBUS.assignExamToUsers(examIDToAssign, assignedUsers);
-        JOptionPane.showMessageDialog(null, "Đã phân công bài thi '" + examName + "' cho " + assignedUsers.size() + " người dùng.");
+        examBUS.assignExamToUsers(examIDToAssign, assignedUsers); 
+        JOptionPane.showMessageDialog(this, "Đã phân công bài thi '" + examName + "' cho " + assignedUsers.size() + " người dùng.");
         f.dispose(); 
-        JOptionPane.showMessageDialog(null, "Đã lưu phân công thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                int teacherId = 1;
-                String examName = "Test Exam";
-                int examId = 1;
-                List<QuestionDTO> selectedQuestions = new ArrayList<>();
-                AssignUsersToExamGUI assignUsersToExamGUI = new AssignUsersToExamGUI(teacherId, examName, examId, selectedQuestions);
-            } catch (Exception ex) {
-                Logger.getLogger(AssignUsersToExamGUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        });
+        JOptionPane.showMessageDialog(this, "Đã lưu phân công thành công!", "Thành công", JOptionPane.INFORMATION_MESSAGE);
     }
 }
