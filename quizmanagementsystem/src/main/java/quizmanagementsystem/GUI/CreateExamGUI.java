@@ -1,8 +1,9 @@
-package GUI;
+package quizmanagementsystem.GUI;
 
-import BUS.ExamBUS;
-import DTO.ExamsDTO;
-import DTO.QuestionDTO;
+import quizmanagementsystem.BUS.ExamBUS;
+import quizmanagementsystem.DTO.ExamsDTO;
+import quizmanagementsystem.DTO.QuestionDTO;
+import quizmanagementsystem.DB.JDBCUtil;
 
 import javax.swing.*;
 import javax.swing.JFrame;
@@ -38,11 +39,15 @@ public class CreateExamGUI extends JFrame {
     public CreateExamGUI(int teacherID) {
         this.teacherID = teacherID;
         f = new JFrame("Tạo Bài Thi");
-        f.setSize(500, 450);
+        f.setSize(500, 400);
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         f.setLocationRelativeTo(null);
         f.setLayout(new BorderLayout());
 
+        JPanel userpanel = new JPanel();
+        userpanel.setBackground(Color.decode("#C3F5FF"));
+        userpanel.setBounds(0, 0, 800, 50);
+        userpanel.setLayout(null);
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         headerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         JLabel titleLabel = new JLabel("Tạo bài thi mới");
@@ -50,71 +55,117 @@ public class CreateExamGUI extends JFrame {
         headerPanel.add(titleLabel);
         f.add(headerPanel, BorderLayout.NORTH);
 
-        JPanel inputPanel = new JPanel(new GridLayout(0, 2, 5, 5));
-        inputPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        inputPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.weightx = 1.0;
 
         JLabel newExamNameLabel = new JLabel("Tên bài thi:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        inputPanel.add(newExamNameLabel, gbc);
         newExamNameTextField = new JTextField(15);
-        inputPanel.add(newExamNameLabel);
-        inputPanel.add(newExamNameTextField);
+        gbc.gridx = 1;
+        inputPanel.add(newExamNameTextField, gbc);
 
         JLabel newExamIdLabel = new JLabel("ID bài thi:");
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        inputPanel.add(newExamIdLabel, gbc);
         newExamIdTextField = new JTextField(8);
-        inputPanel.add(newExamIdLabel);
-        inputPanel.add(newExamIdTextField);
+        gbc.gridx = 1;
+        inputPanel.add(newExamIdTextField, gbc);
 
         JLabel classLabel = new JLabel("Lớp:");
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        inputPanel.add(classLabel, gbc);
         classComboBox = new JComboBox<>();
-        inputPanel.add(classLabel);
-        inputPanel.add(classComboBox);
+        gbc.gridx = 1;
+        inputPanel.add(classComboBox, gbc);
 
         JLabel examDateLabel = new JLabel("Ngày thi:");
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        inputPanel.add(examDateLabel, gbc);
         examDateField = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(examDateField, "yyyy-MM-dd");
         examDateField.setEditor(dateEditor);
-        inputPanel.add(examDateLabel);
-        inputPanel.add(examDateField);
+        gbc.gridx = 1;
+        inputPanel.add(examDateField, gbc);
 
         JLabel examTypeLabel = new JLabel("Loại bài thi:");
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        inputPanel.add(examTypeLabel, gbc);
         examTypeComboBox = new JComboBox<>(new String[]{"Kiểm tra 15 phút", "Kiểm tra 45 phút", "Học kì 1", "Học kì 2"});
-        inputPanel.add(examTypeLabel);
-        inputPanel.add(examTypeComboBox);
+        gbc.gridx = 1;
+        inputPanel.add(examTypeComboBox, gbc);
 
         JLabel examTimeLabel = new JLabel("Thời gian:");
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        inputPanel.add(examTimeLabel, gbc);
         examTimeField = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(examTimeField, "HH:mm:ss");
         examTimeField.setEditor(timeEditor);
-        inputPanel.add(examTimeLabel);
-        inputPanel.add(examTimeField);
+        gbc.gridx = 1;
+        inputPanel.add(examTimeField, gbc);
 
         JLabel questionSelectionLabel = new JLabel("Câu hỏi:");
-        inputPanel.add(questionSelectionLabel);
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
+        inputPanel.add(questionSelectionLabel, gbc);
         selectedQuestionListModel = new DefaultListModel<>();
         selectedQuestionList = new JList<>(selectedQuestionListModel);
         JScrollPane selectedQuestionScrollPane = new JScrollPane(selectedQuestionList);
-        selectedQuestionScrollPane.setPreferredSize(new Dimension(150, 80));
-        inputPanel.add(selectedQuestionScrollPane);
+        selectedQuestionScrollPane.setPreferredSize(new Dimension(150, 30));
+        gbc.gridx = 1;
+        gbc.weighty = 0.3;
+        gbc.fill = GridBagConstraints.BOTH;
+        inputPanel.add(selectedQuestionScrollPane, gbc);
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         browseQuestionsButton = new JButton("Thêm câu hỏi");
+        gbc.gridx = 1;
+        gbc.gridy = 7;
+        gbc.anchor = GridBagConstraints.EAST;
+        inputPanel.add(browseQuestionsButton, gbc);
+
+        saveExamButton = new JButton("Lưu bài thi");
+        gbc.gridx = 1;
+        gbc.gridy = 8;
+        gbc.anchor = GridBagConstraints.EAST;
+        inputPanel.add(saveExamButton, gbc);
+
+        assignUsersButton = new JButton("Phân công");
+        gbc.gridx = 1;
+        gbc.gridy = 9;
+        gbc.anchor = GridBagConstraints.EAST;
+        inputPanel.add(assignUsersButton, gbc);
+
+        f.add(new JScrollPane(inputPanel), BorderLayout.CENTER);
+
+        // Load initial data
+        loadClasses();
+
         browseQuestionsButton.addActionListener(e -> {
             try {
                 showQuestionBankDialog();
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(CreateExamGUI.this, "Lỗi tải câu hỏi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Lỗi tải câu hỏi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             }
         });
-        inputPanel.add(new JLabel(""));
-        inputPanel.add(browseQuestionsButton);
 
-        saveExamButton = new JButton("Lưu bài thi");
         saveExamButton.addActionListener(e -> {
             luuBaiThi();
         });
-        inputPanel.add(new JLabel(""));
-        inputPanel.add(saveExamButton);
 
-        assignUsersButton = new JButton("Phân công");
         assignUsersButton.addActionListener(e -> {
             try {
                 openAssignUsersGUI();
@@ -122,12 +173,6 @@ public class CreateExamGUI extends JFrame {
                 Logger.getLogger(CreateExamGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-        inputPanel.add(new JLabel(""));
-        inputPanel.add(assignUsersButton);
-
-        f.add(new JScrollPane(inputPanel), BorderLayout.CENTER);
-
-        loadClasses();
 
         f.setVisible(true);
     }
@@ -138,22 +183,30 @@ public class CreateExamGUI extends JFrame {
         if (!examName.isEmpty() && !examIdStr.isEmpty()) {
             try {
                 int examID = Integer.parseInt(examIdStr);
-                new AssignUsersToExamGUI(teacherID, examName, examID, selectedQuestions);
+                AssignUsersToExamGUI assignUsersToExamGUI = new AssignUsersToExamGUI(teacherID, examName, examID, selectedQuestions);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(CreateExamGUI.this, "ID phải là số.", "Lỗi", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "ID phải là số.", "Lỗi", JOptionPane.WARNING_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(CreateExamGUI.this, "Nhập tên và ID bài thi.");
+            JOptionPane.showMessageDialog(this, "Nhập tên và ID bài thi.");
         }
     }
 
     private void loadClasses() {
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ql_thitracnghiem", "root", "Thanh@1810")) {
-            String query = "SELECT ClassName FROM classes";
-            try (Statement statement = connection.createStatement(); ResultSet resultSet = statement.executeQuery(query)) {
-                while (resultSet.next()) {
-                    classComboBox.addItem(resultSet.getString("ClassName"));
+        try {
+            Connection connection = JDBCUtil.getConnection();
+            if (connection != null) {
+                String query = "SELECT ClassName FROM classes";
+                try (Statement statement = connection.createStatement();
+                     ResultSet resultSet = statement.executeQuery(query)) {
+                    while (resultSet.next()) {
+                        classComboBox.addItem(resultSet.getString("ClassName"));
+                    }
+                } finally {
+                    connection.close(); // Close the connection in a finally block
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể kết nối đến cơ sở dữ liệu.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -165,12 +218,13 @@ public class CreateExamGUI extends JFrame {
         ExamBUS examBUS = new ExamBUS();
         questionsFromBank = examBUS.getAllQuestionsFromBank();
 
-        JDialog questionDialog = new JDialog(this, "Chọn câu hỏi", true);
+        JDialog questionDialog;
+        questionDialog = new JDialog(f, "Chọn câu hỏi", true);
         questionDialog.setLayout(new BorderLayout());
 
         DefaultListModel<String> availableQuestionListModel = new DefaultListModel<>();
-        for (QuestionDTO q : questionsFromBank) {
-            availableQuestionListModel.addElement(q.getQuestionText());
+        for (int i = 0; i < questionsFromBank.size(); i++) {
+            availableQuestionListModel.addElement((i + 1) + ". " + questionsFromBank.get(i).getQuestionText());
         }
         JList<String> availableQuestionList = new JList<>(availableQuestionListModel);
         JScrollPane availableScrollPane = new JScrollPane(availableQuestionList);
@@ -182,9 +236,16 @@ public class CreateExamGUI extends JFrame {
             int[] selectedIndices = availableQuestionList.getSelectedIndices();
             for (int index : selectedIndices) {
                 QuestionDTO selectedQ = questionsFromBank.get(index);
-                if (!selectedQuestions.contains(selectedQ)) {
+                boolean alreadySelected = false;
+                for (QuestionDTO sq : selectedQuestions) {
+                    if (sq.getQuestionID() == selectedQ.getQuestionID()) {
+                        alreadySelected = true;
+                        break;
+                    }
+                }
+                if (!alreadySelected) {
                     selectedQuestions.add(selectedQ);
-                    selectedQuestionListModel.addElement(selectedQ.getQuestionText());
+                    updateSelectedQuestionListModel();
                 }
             }
         });
@@ -195,7 +256,7 @@ public class CreateExamGUI extends JFrame {
             int selectedIndex = selectedQuestionList.getSelectedIndex();
             if (selectedIndex >= 0) {
                 selectedQuestions.remove(selectedIndex);
-                selectedQuestionListModel.remove(selectedIndex);
+                updateSelectedQuestionListModel();
             }
         });
         buttonPanel.add(removeButton);
@@ -206,8 +267,15 @@ public class CreateExamGUI extends JFrame {
 
         questionDialog.add(buttonPanel, BorderLayout.SOUTH);
         questionDialog.setSize(400, 300);
-        questionDialog.setLocationRelativeTo(this);
+        questionDialog.setLocationRelativeTo(null);
         questionDialog.setVisible(true);
+    }
+
+    private void updateSelectedQuestionListModel() {
+        selectedQuestionListModel.clear();
+        for (int i = 0; i < selectedQuestions.size(); i++) {
+            selectedQuestionListModel.addElement((i + 1) + ". " + selectedQuestions.get(i).getQuestionText());
+        }
     }
 
     private void luuBaiThi() {
@@ -216,63 +284,73 @@ public class CreateExamGUI extends JFrame {
         String examIdStr = newExamIdTextField.getText();
         String className = (String) classComboBox.getSelectedItem();
         Date examDate = (Date) examDateField.getValue();
-       
+
         String examType = (String) examTypeComboBox.getSelectedItem();
         Date examTime = (Date) examTimeField.getValue();
 
         try {
-            try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ql_thitracnghiem", "root", "Thanh@1810")) {
-                // Kiểm tra dữ liệu đầu vào
-                if (examName.isEmpty() || examIdStr.isEmpty() || className == null || examDate == null || examType == null || examTime == null || selectedQuestions.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin bài thi và chọn ít nhất một câu hỏi.");
-                    return;
-                }
+            Connection connection = JDBCUtil.getConnection(); // Use JDBCUtil
+            if (connection != null) {
+                try {
+                    // Kiểm tra dữ liệu đầu vào
+                    if (examName.isEmpty() || examIdStr.isEmpty() || className == null || examDate == null || examType == null || examTime == null || selectedQuestions.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin bài thi và chọn ít nhất một câu hỏi.");
+                        return;
+                    }
 
-                // Lấy ClassID từ tên lớp
-                String classIdQuery = "SELECT ClassID FROM classes WHERE ClassName = ?";
-                String classId;
-                try (PreparedStatement classIdStatement = connection.prepareStatement(classIdQuery)) {
-                    classIdStatement.setString(1, className);
-                    try (ResultSet classIdResultSet = classIdStatement.executeQuery()) {
-                        if (classIdResultSet.next()) {
-                            classId = classIdResultSet.getString("ClassID");
-                        } else {
-                            JOptionPane.showMessageDialog(this, "Không tìm thấy lớp học.");
-                            return;
+                    // Lấy ClassID từ tên lớp
+                    String classIdQuery = "SELECT ClassID FROM classes WHERE ClassName = ?";
+                    String classId;
+                    try (PreparedStatement classIdStatement = connection.prepareStatement(classIdQuery)) {
+                        classIdStatement.setString(1, className);
+                        try (ResultSet classIdResultSet = classIdStatement.executeQuery()) {
+                            if (classIdResultSet.next()) {
+                                classId = classIdResultSet.getString("ClassID");
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Không tìm thấy lớp học.");
+                                return;
+                            }
                         }
                     }
-                }
 
-                // Lưu bài thi
-                String examQuery = "INSERT INTO exams (ExamID, ExamName, ClassID, ExamDate, ExamType, ExamTime) VALUES (?, ?, ?, ?, ?, ?)";
-                int examId = Integer.parseInt(examIdStr);
-                try (PreparedStatement examStatement = connection.prepareStatement(examQuery)) {
-                    examStatement.setInt(1, examId);
-                    examStatement.setString(2, examName);
-                    examStatement.setString(3, classId);
-                    examStatement.setDate(4, new java.sql.Date(examDate.getTime()));
-                    examStatement.setString(5, examType);
-                    examStatement.setTime(6, new java.sql.Time(examTime.getTime()));
-                    examStatement.executeUpdate();
-                }
-
-                // Lưu câu hỏi vào examquestions
-                for (QuestionDTO question : selectedQuestions) {
-                    String examQuestionQuery = "INSERT INTO examquestions (ExamID, QuestionID) VALUES (?, ?)";
-                    try (PreparedStatement examQuestionStatement = connection.prepareStatement(examQuestionQuery)) {
-                        examQuestionStatement.setInt(1, examId);
-                        examQuestionStatement.setInt(2, question.getQuestionID());
-                        examQuestionStatement.executeUpdate();
+                    // Lưu bài thi
+                    String examQuery = "INSERT INTO exams (ExamID, ExamName, ClassID, ExamDate, ExamType, ExamTime) VALUES (?, ?, ?, ?, ?, ?)";
+                    int examId = Integer.parseInt(examIdStr);
+                    try (PreparedStatement examStatement = connection.prepareStatement(examQuery)) {
+                        examStatement.setInt(1, examId);
+                        examStatement.setString(2, examName);
+                        examStatement.setString(3, classId);
+                        examStatement.setDate(4, new java.sql.Date(examDate.getTime()));
+                        examStatement.setString(5, examType);
+                        examStatement.setTime(6, new java.sql.Time(examTime.getTime()));
+                        examStatement.executeUpdate();
                     }
+
+                    // Lưu câu hỏi vào examquestions
+                    for (QuestionDTO question : selectedQuestions) {
+                        String examQuestionQuery = "INSERT INTO examquestions (ExamID, QuestionID) VALUES (?, ?)";
+                        try (PreparedStatement examQuestionStatement = connection.prepareStatement(examQuestionQuery)) {
+                            examQuestionStatement.setInt(1, examId);
+                            examQuestionStatement.setInt(2, question.getQuestionID());
+                            examQuestionStatement.executeUpdate();
+                        }
+                    }
+                    JOptionPane.showMessageDialog(this, "Bài thi đã được lưu.");
+                    f.dispose();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Lỗi khi lưu bài thi: " + e.getMessage());
+                } finally {
+                    connection.close();
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "Không thể kết nối đến cơ sở dữ liệu.");
             }
-            JOptionPane.showMessageDialog(this, "Bài thi đã được lưu.");
-            dispose();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi lưu bài thi: " + e.getMessage());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "ID bài thi phải là một số.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi kết nối cơ sở dữ liệu: " + e.getMessage());
         }
     }
 
@@ -280,3 +358,4 @@ public class CreateExamGUI extends JFrame {
         SwingUtilities.invokeLater(() -> new CreateExamGUI(1));
     }
 }
+
