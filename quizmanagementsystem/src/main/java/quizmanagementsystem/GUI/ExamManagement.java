@@ -1,6 +1,6 @@
-package GUI;
+package  quizmanagementsystem.GUI;
 
-import BUS.UserBUS;
+import  quizmanagementsystem.BUS.UserBUS;
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.*;
@@ -17,8 +17,8 @@ import java.util.logging.Logger;
 
 public class ExamManagement {
 
-    private final int teacherID;
-    private final JFrame f;
+    private int teacherID;
+    private JFrame f;
 
     public ExamManagement(int teacherID) throws SQLException {
         this.teacherID = teacherID;
@@ -35,7 +35,7 @@ public class ExamManagement {
         String teacherName = UserBUS.getUserName(teacherID);
 
         JLabel userlabel = new JLabel(teacherName);
-        userlabel.setBounds(600, 11, 300, 30);
+        userlabel.setBounds(600, 11, 120, 30);
         userlabel.setFont(new Font("Arial", Font.BOLD, 17));
         userlabel.setForeground(Color.WHITE);
         userpanel.add(userlabel);
@@ -46,13 +46,26 @@ public class ExamManagement {
         mainlabel.setFont(new Font("Arial", Font.BOLD, 17));
         userpanel.add(mainlabel);
 
-        JLabel user = new JLabel();
-        user.setBounds(730, 11, 30, 30);
+        JLabel userIconLabel = new JLabel();
+        userIconLabel.setBounds(730, 11, 30, 30);
 
-        ImageIcon usersign = new ImageIcon("C:\\Users\\ASUS\\Downloads\\img java\\user.png");
-        Image imguser = usersign.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        user.setIcon(new ImageIcon(imguser));
-        userpanel.add(user);
+        JLabel userIcon = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/user.png")
+        .getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH)));
+        userIcon.setBounds(720, 11, 30, 30);
+        userpanel.add(userIcon);
+        
+        //Label đăng xuất
+        JLabel logoutLabel = new JLabel(new ImageIcon(new ImageIcon("quizmanagementsystem/src/main/resources/img/enter.png")
+        .getImage().getScaledInstance(25, 30, Image.SCALE_SMOOTH)));
+        logoutLabel.setBounds(755, 11, 25, 30);
+        userpanel.add(logoutLabel);
+
+        logoutLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                f.dispose();
+                new LoginGUI();
+            }
+        });
 
         // Mainframe
         JLayeredPane mainpanel = new JLayeredPane();
@@ -61,22 +74,22 @@ public class ExamManagement {
         f.add(userpanel);
 
         // Panel tạo bài thi
-        JPanel createpanel = createHeaderPanel("Tạo Bài Thi", "C:\\Users\\ASUS\\Downloads\\img java\\question-mark.png",
+        JPanel createpanel = createHeaderPanel("Tạo Bài Thi", "quizmanagementsystem/src/main/resources/img/question-mark.png",
                 50, 90);
         mainpanel.add(createpanel);
 
-        // Panel sửa/xóa bài thi 
-        JPanel editdeletepanel = createHeaderPanel("Sửa/ Xóa Bài Thi", "C:\\Users\\ASUS\\Downloads\\img java\\search.png",
-                300, 90); 
+        // Panel sửa/xóa bài thi
+        JPanel editdeletepanel = createHeaderPanel("Sửa/ Xóa Bài Thi", "quizmanagementsystem/src/main/resources/img/search.png",
+                300, 90); // Changed X coordinate to 300
         mainpanel.add(editdeletepanel);
 
         createpanel.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 f.dispose();
-                try{
+                try {
                     CreateExamGUI createExamGUI = new CreateExamGUI(teacherID);
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -86,9 +99,9 @@ public class ExamManagement {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 f.dispose();
-                try{
+                try {
                     EditDeleteExamGUI editDeleteExamGUI = new EditDeleteExamGUI(teacherID);
-                }catch(Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
